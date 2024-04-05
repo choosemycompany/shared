@@ -7,7 +7,6 @@ $finder = (new PhpCsFixer\Finder())
 
 return (new PhpCsFixer\Config())
     ->setRules([
-        '@Symfony' => false,
         '@PSR12' => true,
         'declare_strict_types' => true,
         'php_unit_test_case_static_method_calls' => [
@@ -16,4 +15,4 @@ return (new PhpCsFixer\Config())
     ])
     ->setRiskyAllowed(true)
     ->setFinder($finder)
-    ;
+;

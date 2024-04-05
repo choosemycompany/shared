@@ -1,21 +1,9 @@
-###> PhpStorm ###
-.idea/
-.idea/*
-###< PhpStorm ###
-
-###> Visual studio ###
-.vscode/
-.vscode/*
-###< Visual studio ###
-
 /vendor/
 
 ###> phpunit/phpunit ###
-/phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
 
 ###> friendsofphp/php-cs-fixer ###
-/.php-cs-fixer.php
 /.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###

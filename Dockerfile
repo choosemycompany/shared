@@ -1,26 +1,18 @@
-FROM php:8.3-apache as base-stage
+FROM php:8.3-cli-alpine
 
-WORKDIR /srv/app/choosemycompany_shared
+WORKDIR /srv/app
 
-RUN apt-get update && apt-get install -y sudo \
-    git \
-    unzip \
-    libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
-    libicu-dev \
-    libonig-dev \
-    libkrb5-dev \
+RUN apk update && apk add --no-cache bash \
+    freetype-dev \
+    icu-dev \
+    oniguruma-dev \
+    krb5-dev \
     libxml2-dev \
     libzip-dev \
-    librabbitmq-dev \
     libxslt-dev
 
-RUN docker-php-ext-configure intl \
-    && docker-php-ext-install zip intl bcmath mbstring \
-    && docker-php-ext-enable intl mbstring
+RUN docker-php-ext-install zip intl bcmath
 
-# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-RUN printf "alias s='php bin/console'\n\
-alias c='composer'" >> ~/.bashrc
-
-RUN apt-get clean
+RUN printf "alias c='composer'\n" >> ~/.bashrc \
+    && source ~/.bashrc

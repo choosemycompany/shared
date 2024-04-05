@@ -2,7 +2,7 @@ version: 2.1
 
 jobs:
   tests:
-    working_directory: ~/choosemycompany_shared
+    working_directory: ~/app
     docker:
       - image: cimg/php:8.3.4
     steps:
