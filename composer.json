@@ -1,0 +1,41 @@
+{
+    "name": "choosemycompany/shared",
+    "description": "ChooseMyCompany Shared Context",
+    "license": "proprietary",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "ChooseMyCompany\\Shared\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "cmc_tech"
+        }
+    ],
+    "require": {
+        "php": ">=8.3",
+        "beberlei/assert": "^3.3"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.52",
+        "phpro/grumphp-shim": "*",
+        "phpunit/phpunit": "^11.1",
+        "symfony/phpunit-bridge": "^7.0"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true,
+        "require": {
+            "php": "^8.3"
+        },
+        "allow-plugins": {
+            "phpro/grumphp-shim": true
+        }
+    }
+}

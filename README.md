@@ -1,1 +1,1 @@
-# choosemycompany_shared
+# ChooseMyCompany Shared

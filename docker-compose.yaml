@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  shared:
+    container_name: choosemycompany_shared
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base-stage
+    working_dir: /srv/app/choosemycompany_shared
+    volumes:
+      - ./:/srv/app/choosemycompany_shared
