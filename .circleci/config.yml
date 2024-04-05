@@ -1,0 +1,43 @@
+version: 2.1
+
+jobs:
+  tests:
+    working_directory: ~/choosemycompany_shared
+    docker:
+      - image: cimg/php:8.3.4
+    steps:
+      - checkout
+      - restore_cache:
+          key: composer-dependencies-{{ checksum "composer.lock" }}
+      - run: echo $(git rev-parse HEAD) > .git/COMMIT_HASH
+      - restore_cache:
+          keys:
+            - composer-commit-hash-{{ .Branch }}-{{ checksum ".git/COMMIT_HASH" }}
+      - run:
+          name: "Check for code changes"
+          command: |
+            if [ -f .git/COMMIT_HASH_CACHED ] && diff .git/COMMIT_HASH_CACHED .git/COMMIT_HASH; then
+              echo "Code has not changed. Skipping composer install."
+            else
+              composer install
+            fi
+      - save_cache:
+          paths:
+            - vendor
+          key: composer-dependencies-{{ checksum "composer.lock" }}
+      - save_cache:
+          paths:
+            - .git/COMMIT_HASH
+          key: composer-commit-hash-{{ .Branch }}-{{ checksum ".git/COMMIT_HASH" }}
+      - run:
+          name: "Lint"
+          command: vendor/bin/grumphp run
+      - run:
+          name: "Run tests"
+          command: vendor/bin/phpunit -c phpunit.xml.dist tests
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - tests
