@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\Score\ValueObject;
+namespace ChooseMyCompany\Shared\Tests\Domain\Score\ValueObject;
 
 use ChooseMyCompany\Shared\Domain\ValueObject\Rate;
 use PHPUnit\Framework\Attributes\DataProvider;

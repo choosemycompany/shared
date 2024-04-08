@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Extension\Assert;
+namespace ChooseMyCompany\Shared\Tests\Extension\Assert;
 
 use ChooseMyCompany\Shared\Domain\Error\ErrorList;
 use ChooseMyCompany\Shared\Extension\Assert\LazyAssertionException;
