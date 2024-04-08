@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ChooseMyCompany\Shared\Domain\ValueObject;
 
-use App\Survey\Extension\Assert\Assertion;
+use ChooseMyCompany\Shared\Extension\Assert\Assertion;
 
 final class Uuid implements \Stringable
 {
