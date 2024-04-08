@@ -6,7 +6,7 @@ namespace ChooseMyCompany\Shared\Domain\ValueObject;
 
 use Assert\Assert;
 
-final readonly class Rate
+final class Rate
 {
     private function __construct(private float $value)
     {
