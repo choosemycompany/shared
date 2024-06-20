@@ -16,13 +16,6 @@ final class LazyAssertionException extends BaseLazyAssertionException
         return new self('', [new InvalidArgumentException(message: $message, code: 0, propertyPath: $propertyPath)]);
     }
 
-    public static function withErrorList(ErrorList $errorList): void
-    {
-        $errors = \iterator_to_array($errorList);
-
-        throw self::fromErrors($errors);
-    }
-
     public function getErrors(): ErrorList
     {
         $errors = new ErrorList();
@@ -31,18 +24,5 @@ final class LazyAssertionException extends BaseLazyAssertionException
         }
 
         return $errors;
-    }
-
-    public static function fromErrorList(ErrorList $errorList): self
-    {
-        /** @var self $exception */
-        $exception = self::fromErrors(
-            \array_map(
-                static fn (Error $error) => new InvalidArgumentException($error->message, 0, $error->fieldName),
-                \iterator_to_array($errorList)
-            )
-        );
-
-        return $exception;
     }
 }
