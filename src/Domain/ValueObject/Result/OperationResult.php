@@ -5,43 +5,40 @@ declare(strict_types=1);
 namespace ChooseMyCompany\Shared\Domain\ValueObject\Result;
 
 use ChooseMyCompany\Shared\Domain\Error\ErrorList;
+use ChooseMyCompany\Shared\Presentation\Domain\DomainViewModel;
 
 final class OperationResult
 {
-    private function __construct(
-        private readonly bool $success,
-        private readonly mixed $data,
-        private readonly ErrorList $errors
-    ) {
+    private function __construct(private readonly DomainViewModel $viewModel)
+    {
     }
 
-    public static function success($data): self
+    public static function create(DomainViewModel $viewModel): self
     {
-        return new self(true, $data, new ErrorList());
-    }
-
-    public static function failure(ErrorList $errors): self
-    {
-        return new self(false, null, $errors);
+        return new self($viewModel);
     }
 
     public function isSuccess(): bool
     {
-        return $this->success;
+        return !$this->viewModel->isErrorViewModel();
     }
 
     public function isFailure(): bool
     {
-        return !$this->success;
+        return $this->viewModel->isErrorViewModel();
     }
 
-    public function getData(): mixed
+    public function getViewModel(): DomainViewModel
     {
-        return $this->data;
+        return $this->viewModel;
     }
 
     public function getErrors(): ErrorList
     {
-        return $this->errors;
+        if ($this->isSuccess()) {
+            return new ErrorList();
+        }
+
+        return $this->viewModel->errors;
     }
 }
