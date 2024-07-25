@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\Json;
+namespace ChooseMyCompany\Shared\Presentation\Json\ViewModel;
 
 interface JsonViewModel
 {

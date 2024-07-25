@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\Json;
+namespace ChooseMyCompany\Shared\Presentation\Json\ViewModel;
 
-use ChooseMyCompany\Shared\Presentation\Shared\Pagination\PaginationViewModel;
+use ChooseMyCompany\Shared\Presentation\Shared\ViewModel\PaginationViewModel;
 
 final class PaginatedCollectionJsonViewModel extends CollectionJsonViewModel
 {

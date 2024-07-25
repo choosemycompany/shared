@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\Json;
+namespace ChooseMyCompany\Shared\Presentation\Json\ViewModel;
 
 final class NoContentJsonViewModel implements JsonViewModel
 {

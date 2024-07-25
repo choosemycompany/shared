@@ -10,16 +10,20 @@ class DomainException extends \Exception
 {
     private ErrorList $errors;
 
-    final private function __construct(ErrorList $errors, string $message = '', \Throwable $previous = null)
-    {
-        $this->errors = $errors;
+    protected function __construct(
+        string $message = '',
+        ErrorList $errors = null,
+        int $code = 0,
+        ?\Throwable $previous = null
+    ) {
+        $this->errors = $errors ?? new ErrorList();
 
-        parent::__construct(message: $message, previous: $previous);
+        parent::__construct($message, $code, $previous);
     }
 
     public static function createFromErrors(ErrorList $errors): static
     {
-        return new static($errors);
+        return new static(errors: $errors);
     }
 
     public function getErrors(): ErrorList
