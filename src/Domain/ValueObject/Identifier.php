@@ -22,6 +22,15 @@ abstract class Identifier implements \Stringable
         return new static(Uuid::fromString($value));
     }
 
+    public static function tryFrom(string $value): ?static
+    {
+        try {
+            return new static(Uuid::fromString($value));
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
     public function getUuid(): Uuid
     {
         return $this->uuid;

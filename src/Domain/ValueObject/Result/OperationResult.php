@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ChooseMyCompany\Shared\Domain\ValueObject\Result;
 
 use ChooseMyCompany\Shared\Domain\Error\ErrorList;
-use ChooseMyCompany\Shared\Presentation\Domain\DomainViewModel;
+use ChooseMyCompany\Shared\Presentation\Domain\ViewModel\DomainViewModel;
 
 final class OperationResult
 {

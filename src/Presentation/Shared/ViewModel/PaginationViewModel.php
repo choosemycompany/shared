@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\Shared\Pagination;
+namespace ChooseMyCompany\Shared\Presentation\Shared\ViewModel;
 
 final class PaginationViewModel
 {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ChooseMyCompany\Shared\Extension\Assert;
 
 use Assert\LazyAssertion as BaseLazyAssertion;
+use ChooseMyCompany\Shared\Domain\ValueObject\Result\ValidationResult;
 
 /**
  * @method LazyAssertion isConvertibleToDate(string $message = null, string $propertyPath = null)                                                               Assert that the value is convertible to DateTime.
@@ -87,9 +88,11 @@ use Assert\LazyAssertion as BaseLazyAssertion;
  * @method LazyAssertion regex(string $pattern, string|callable $message = null, string $propertyPath = null)                                                   Assert that value matches a regex.
  * @method LazyAssertion same(mixed $value2, string|callable $message = null, string $propertyPath = null)                                                      Assert that two values are the same (using ===).
  * @method LazyAssertion satisfy(callable $callback, string|callable $message = null, string $propertyPath = null)                                              Assert that the provided value is valid according to a callback.
+ * @method LazyAssertion satisfyIdentifier(callable $identifierFactory, callable $existenceCheck, string $propertyPath = null, bool $allowEmpty = false)        Asserts that an identifier value satisfies all necessary conditions.
  * @method LazyAssertion scalar(string|callable $message = null, string $propertyPath = null)                                                                   Assert that value is a PHP scalar.
  * @method LazyAssertion startsWith(string $needle, string|callable $message = null, string $propertyPath = null, string $encoding = 'utf8')                    Assert that string starts with a sequence of chars.
  * @method LazyAssertion string(string|callable $message = null, string $propertyPath = null)                                                                   Assert that value is a string.
+ * @method LazyAssertion stringable(string|callable $message = null, string $propertyPath = null)                                                               Assert that value is a string.
  * @method LazyAssertion subclassOf(string $className, string|callable $message = null, string $propertyPath = null)                                            Assert that value is subclass of given class-name.
  * @method LazyAssertion true(string|callable $message = null, string $propertyPath = null)                                                                     Assert that the value is boolean True.
  * @method LazyAssertion uniqueValues(string|callable $message = null, string $propertyPath = null)                                                             Assert that values in array are unique (using strict equality).
@@ -100,6 +103,16 @@ use Assert\LazyAssertion as BaseLazyAssertion;
  * @method LazyAssertion all()                                                                                                                                  Switch chain into validation mode for an array of values.
  * @method LazyAssertion nullOr()                                                                                                                               Switch chain into mode allowing nulls, ignoring further assertions.
  */
-final class LazyAssertion extends BaseLazyAssertion
+class LazyAssertion extends BaseLazyAssertion
 {
+    public function validateAndReturnResult(): ValidationResult
+    {
+        try {
+            $this->verifyNow();
+
+            return ValidationResult::success();
+        } catch (LazyAssertionException $exception) {
+            return ValidationResult::failure($exception->getErrors());
+        }
+    }
 }

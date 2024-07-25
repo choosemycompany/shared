@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\Shared\Error;
+namespace ChooseMyCompany\Shared\Presentation\Shared\ViewModel;
 
 final class ErrorViewModel
 {

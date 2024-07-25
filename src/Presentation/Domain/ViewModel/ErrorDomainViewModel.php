@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\Domain;
+namespace ChooseMyCompany\Shared\Presentation\Domain\ViewModel;
 
 use ChooseMyCompany\Shared\Domain\Error\ErrorList;
 

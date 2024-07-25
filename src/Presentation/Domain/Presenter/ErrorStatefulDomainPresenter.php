@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\Domain;
+namespace ChooseMyCompany\Shared\Presentation\Domain\Presenter;
 
 use ChooseMyCompany\Shared\Domain\Error\ErrorList;
 use ChooseMyCompany\Shared\Domain\Error\ErrorResponse;
