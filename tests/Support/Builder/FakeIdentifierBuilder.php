@@ -13,6 +13,6 @@ final class FakeIdentifierBuilder
 
     public function build(): FakeIdentifier
     {
-        return FakeIdentifier::fromString($this->identifier);
+        return FakeIdentifier::from($this->identifier);
     }
 }
