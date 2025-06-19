@@ -21,7 +21,7 @@ final class IdentifierTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         // When
-        $sut->equalsTo($givenIdentifier);
+        $sut->equals($givenIdentifier);
     }
 
     public function testThatSameClassWithDifferentValuesAreNotEqual(): void
@@ -32,7 +32,7 @@ final class IdentifierTest extends TestCase
         $givenIdentifier = (new FakeIdentifierBuilder())->withIdentifier('d5881a98-e827-4bc3-bbf4-9f21301cc2b2')->build();
 
         // When
-        $actualResult = $sut->equalsTo($givenIdentifier);
+        $actualResult = $sut->equals($givenIdentifier);
 
         // Then
         self::assertFalse($actualResult);
@@ -47,7 +47,7 @@ final class IdentifierTest extends TestCase
         $givenIdentifier = (new FakeIdentifierBuilder())->withIdentifier($identifierString)->build();
 
         // When
-        $actualResult = $sut->equalsTo($givenIdentifier);
+        $actualResult = $sut->equals($givenIdentifier);
 
         // Then
         self::assertTrue($actualResult);

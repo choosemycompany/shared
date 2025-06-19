@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace ChooseMyCompany\Shared\Domain\Error;
 
+/**
+ * @deprecated use ChooseMyCompany\Shared\Domain\List\ErrorList instead
+ */
 final class ErrorList implements \IteratorAggregate
 {
     /** @var Error[] */
@@ -24,6 +27,14 @@ final class ErrorList implements \IteratorAggregate
     public function isEmpty(): bool
     {
         return 0 === \count($this->errors);
+    }
+
+    /**
+     * @return Error[]
+     */
+    public function all(): array
+    {
+        return $this->errors;
     }
 
     /**

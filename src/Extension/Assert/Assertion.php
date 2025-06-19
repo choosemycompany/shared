@@ -62,13 +62,14 @@ class Assertion extends BaseAssertion
      *   Assertion::assertValidIdentifier(
      *       $value,
      *       fn($identifierValue) => UserIdentifier::tryFrom($identifierValue),
-     *       fn($identifier) => $userRepository->exists($identifier)
+     *       fn($identifier) => $userRepository->exists($identifier),
+     *       'user',
      *   );
      */
     public static function satisfyIdentifier(
         mixed $value,
         callable $identifierFactory,
-        callable $existenceCheck,
+        callable $existenceCheck = null,
         string $propertyPath = null,
         bool $allowEmpty = false
     ): bool {
@@ -81,7 +82,10 @@ class Assertion extends BaseAssertion
 
         $identifier = $identifierFactory((string) $value);
         self::notNull($identifier, 'validation_error.invalid_identifier', $propertyPath);
-        self::true($existenceCheck($identifier), 'validation_error.not_found', $propertyPath);
+
+        if ($existenceCheck) {
+            self::true($existenceCheck($identifier), 'validation_error.not_found', $propertyPath);
+        }
 
         return true;
     }

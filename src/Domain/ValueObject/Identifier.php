@@ -4,50 +4,90 @@ declare(strict_types=1);
 
 namespace ChooseMyCompany\Shared\Domain\ValueObject;
 
-use ChooseMyCompany\Shared\Extension\Assert\Assertion;
+use Assert\Assert;
+use Assert\Assertion;
 
 abstract class Identifier implements \Stringable
 {
-    final private function __construct(private readonly Uuid $uuid)
-    {
+    final public function __construct(
+        private readonly Uuid $uuid,
+    ) {
     }
 
-    public static function fromUuid(Uuid $value): static
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public static function from(mixed $value): static
     {
-        return new static($value);
+        return match (true) {
+            $value instanceof self => $value,
+            $value instanceof Uuid => new static($value),
+            \is_string($value) => static::fromString($value),
+            default => throw new \InvalidArgumentException('Invalid value type for Identifier.'),
+        };
     }
 
-    public static function fromString(string $value): static
+    private static function fromString(string $value): static
     {
-        return new static(Uuid::fromString($value));
+        return new static(Uuid::from($value));
     }
 
     public static function tryFrom(string $value): ?static
     {
         try {
-            return new static(Uuid::fromString($value));
+            return self::from($value);
         } catch (\Throwable) {
             return null;
         }
     }
 
-    public function getUuid(): Uuid
+    public function equals(self $other): bool
+    {
+        $staticClass = static::class;
+        $otherClass = $other::class;
+
+        Assertion::same(
+            $staticClass,
+            $otherClass,
+            \sprintf(
+                'Both identifiers must be of the same class to be compared. Expected %s, but got %s.',
+                $staticClass,
+                $otherClass
+            )
+        );
+
+        return $other->uuid->toString() === $this->uuid->toString();
+    }
+
+    public static function validate(mixed $value): bool|string
+    {
+        try {
+            self::assertValid($value);
+            return true;
+        } catch (\Throwable $e) {
+            return $e->getMessage();
+        }
+    }
+
+    private static function assertValid(mixed $value): void
+    {
+        Assert::that($value)
+            ->string('identifier must be a string')
+            ->uuid('identifier must be a valid UUID');
+    }
+
+    public function toUuid(): Uuid
     {
         return $this->uuid;
     }
 
-    public function equalsTo(Identifier $other): bool
+    public function toString(): string
     {
-        $otherClass = $other::class;
-        $staticClass = static::class;
-
-        Assertion::same($otherClass, $staticClass, \sprintf('Both identifiers must be of the same class to be compared. Expected %s, but got %s.', $staticClass, $otherClass));
-
-        return (string)$other === (string)$this;
+        return $this->uuid->toString();
     }
 
     public function __toString(): string
     {
-        return (string)$this->uuid;
+        return $this->toString();
     }
 }

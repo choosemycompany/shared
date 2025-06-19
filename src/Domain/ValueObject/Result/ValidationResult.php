@@ -6,6 +6,9 @@ namespace ChooseMyCompany\Shared\Domain\ValueObject\Result;
 
 use ChooseMyCompany\Shared\Domain\Error\ErrorList;
 
+/**
+ * @deprecated Use ChooseMyCompany\Shared\Domain\Result\ValidationResult instead.
+ */
 final class ValidationResult
 {
     public function __construct(private readonly bool $isValid, private readonly ErrorList $errors)

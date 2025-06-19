@@ -36,8 +36,13 @@ abstract class LegacyIdentifier implements \Stringable
         return (int) $this->value;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->value;
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 }

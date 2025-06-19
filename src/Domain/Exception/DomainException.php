@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ChooseMyCompany\Shared\Domain\Exception;
 
-use ChooseMyCompany\Shared\Domain\Error\ErrorList;
+use ChooseMyCompany\Shared\Domain\List\ErrorList;
 
 class DomainException extends \Exception
 {
