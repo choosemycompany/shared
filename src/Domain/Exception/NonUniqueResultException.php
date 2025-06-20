@@ -34,4 +34,17 @@ final class NonUniqueResultException extends DomainException
 
         return new self($message);
     }
+
+    public static function fromClassAndScalarIdentifier(string $entityClass, string $scalarIdentifier): self
+    {
+        Assertion::classExists($entityClass);
+
+        $message = \sprintf(
+            'Query for entity of type %s with the scalar identifier: %s returned multiple results, but only one or none was expected.',
+            $entityClass,
+            $scalarIdentifier
+        );
+
+        return new self($message);
+    }
 }

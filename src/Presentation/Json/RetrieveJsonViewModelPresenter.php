@@ -10,8 +10,7 @@ use ChooseMyCompany\Shared\Presentation\ViewModel\Json\RetrieveJsonViewModel;
 /**
  * @template TResponse
  * @template TResource
- * @template TViewModel of RetrieveJsonViewModel
- * @extends ResourceViewModelPresenter<TResponse, TResource, TViewModel>
+ * @extends ResourceViewModelPresenter<TResponse, TResource, RetrieveJsonViewModel>
  */
 abstract class RetrieveJsonViewModelPresenter extends ResourceViewModelPresenter
 {

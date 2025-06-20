@@ -12,8 +12,7 @@ use ChooseMyCompany\Shared\Presentation\ViewModel\Json\PaginatedCollectionJsonVi
 /**
  * @template TResponse
  * @template TResources
- * @template TViewModel of CollectionJsonViewModel
- * @extends CollectionResourceViewModelPresenter<TResponse, TResources, TViewModel>
+ * @extends CollectionResourceViewModelPresenter<TResponse, TResources, CollectionJsonViewModel>
  */
 abstract class CollectionJsonViewModelPresenter extends CollectionResourceViewModelPresenter
 {
