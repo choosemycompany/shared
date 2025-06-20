@@ -10,8 +10,7 @@ use ChooseMyCompany\Shared\Presentation\ViewModel\Json\UpdateJsonViewModel;
 /**
  * @template TResponse
  * @template TResource
- * @template TViewModel of UpdateJsonViewModel
- * @extends ResourceViewModelPresenter<TResponse, TResource, TViewModel>
+ * @extends ResourceViewModelPresenter<TResponse, TResource, UpdateJsonViewModel>
  */
 abstract class UpdateJsonViewModelPresenter extends ResourceViewModelPresenter
 {

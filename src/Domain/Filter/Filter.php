@@ -7,7 +7,7 @@ namespace ChooseMyCompany\Shared\Domain\Filter;
 abstract class Filter implements \Stringable
 {
     /**
-     * @return array<string, ?string>
+     * @return array<string, bool|string|null>
      */
     abstract protected function toArray(): array;
 

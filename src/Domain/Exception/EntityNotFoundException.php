@@ -37,6 +37,19 @@ final class EntityNotFoundException extends DomainException
         return new self($message);
     }
 
+    public static function fromClassAndScalarIdentifier(string $entityClass, string $scalarIdentifier): self
+    {
+        Assertion::classExists($entityClass);
+
+        $message = \sprintf(
+            'Entity of type %s not found for the given scalar identifier: %s',
+            $entityClass,
+            $scalarIdentifier
+        );
+
+        return new self($message);
+    }
+
     public static function fromCriteria(string $criteria): self
     {
         $message = \sprintf(
