@@ -7,9 +7,10 @@ namespace ChooseMyCompany\Shared\Presentation\Json;
 use ChooseMyCompany\Shared\Domain\Response\AccessDeniedResponse;
 use ChooseMyCompany\Shared\Domain\Service\AccessDeniedViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\PresenterState;
+use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 use ChooseMyCompany\Shared\Presentation\ViewModel\Json\AccessDeniedJsonViewModel;
 
-final class AccessDeniedJsonViewModelPresenter implements AccessDeniedViewModelPresenter, PresenterState
+final class AccessDeniedJsonViewModelPresenter implements AccessDeniedViewModelPresenter, PresenterState, ViewModelAccess
 {
     private AccessDeniedJsonViewModel $viewModel;
 

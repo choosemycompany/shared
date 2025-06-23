@@ -9,9 +9,10 @@ use ChooseMyCompany\Shared\Domain\Service\ErrorListViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\NoContentViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\NotFoundViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\PresenterState;
+use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 use ChooseMyCompany\Shared\Presentation\ViewModel\Json\NoContentJsonViewModel;
 
-final class NoContentJsonViewModelPresenter implements NoContentViewModelPresenter
+final class NoContentJsonViewModelPresenter implements NoContentViewModelPresenter, ViewModelAccess
 {
     public function __construct(
         protected readonly ErrorListViewModelPresenter&PresenterState $errorsPresenter,

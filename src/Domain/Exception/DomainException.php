@@ -26,7 +26,7 @@ class DomainException extends \Exception
         return new static(errors: $errors);
     }
 
-    public function getErrors(): ErrorList
+    public function errors(): ErrorList
     {
         return $this->errors;
     }

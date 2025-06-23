@@ -8,13 +8,14 @@ use ChooseMyCompany\Shared\Domain\Service\AccessDeniedViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\ErrorListViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\NotFoundViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\PresenterState;
+use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 
 /**
  * @template TResponse
  * @template TResource
  * @template TViewModel
  */
-abstract class ResourceViewModelPresenter implements PresenterState
+abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAccess
 {
     /** @var TResource */
     protected mixed $resource;

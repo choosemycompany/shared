@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ChooseMyCompany\Shared\Extension\Assert;
 
 use Assert\LazyAssertion as BaseLazyAssertion;
-use ChooseMyCompany\Shared\Domain\ValueObject\Result\ValidationResult;
+use ChooseMyCompany\Shared\Domain\Result\ValidationResult;
 
 /**
  * @method LazyAssertion isConvertibleToDate(string $message = null, string $propertyPath = null)                                                               Assert that the value is convertible to DateTime.
@@ -110,9 +110,9 @@ class LazyAssertion extends BaseLazyAssertion
         try {
             $this->verifyNow();
 
-            return ValidationResult::success();
+            return ValidationResult::valid();
         } catch (LazyAssertionException $exception) {
-            return ValidationResult::failure($exception->getErrors());
+            return ValidationResult::invalid($exception->getErrors());
         }
     }
 }

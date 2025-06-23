@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ChooseMyCompany\Shared\Tests\Extension;
 
-use ChooseMyCompany\Shared\Domain\ValueObject\Result\ValidationResult;
+use ChooseMyCompany\Shared\Domain\Result\ValidationResult;
 use ChooseMyCompany\Shared\Extension\Assert\Assert;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +15,7 @@ final class AssertTest extends TestCase
         // Given
         $givenValue = '1';
         $givenIdentifierFactory = static fn ($value) => $value;
-        $givenExistenceCheck = static fn ($value) => $value === '1';
+        $givenExistenceCheck = static fn ($value) => '1' === $value;
 
         // When
         $actualResult = Assert::lazy()
