@@ -8,6 +8,7 @@ use ChooseMyCompany\Shared\Domain\Service\AccessDeniedViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\ErrorListViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\NotFoundViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\PresenterState;
+use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 use ChooseMyCompany\Shared\Domain\ValueObject\Pagination\PaginationDetails;
 
 /**
@@ -15,7 +16,7 @@ use ChooseMyCompany\Shared\Domain\ValueObject\Pagination\PaginationDetails;
  * @template TResources
  * @template TViewModel
  */
-abstract class CollectionResourceViewModelPresenter implements PresenterState
+abstract class CollectionResourceViewModelPresenter implements PresenterState, ViewModelAccess
 {
     /** @var TResources */
     protected mixed $resources;

@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace ChooseMyCompany\Shared\Presentation\Shared;
 
 use ChooseMyCompany\Shared\Domain\Service\PresenterState;
+use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 
 /**
  * @template TResponse
  * @template TResource
  * @template TViewModel
  */
-abstract class DirectViewModelPresenter implements PresenterState
+abstract class DirectViewModelPresenter implements PresenterState, ViewModelAccess
 {
     /** @var TViewModel|null */
     private mixed $viewModel = null;

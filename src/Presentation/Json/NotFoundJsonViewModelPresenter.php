@@ -7,9 +7,10 @@ namespace ChooseMyCompany\Shared\Presentation\Json;
 use ChooseMyCompany\Shared\Domain\Response\NotFoundResponse;
 use ChooseMyCompany\Shared\Domain\Service\NotFoundViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\PresenterState;
+use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 use ChooseMyCompany\Shared\Presentation\ViewModel\Json\NotFoundJsonViewModel;
 
-final class NotFoundJsonViewModelPresenter implements NotFoundViewModelPresenter, PresenterState
+final class NotFoundJsonViewModelPresenter implements NotFoundViewModelPresenter, PresenterState, ViewModelAccess
 {
     private NotFoundJsonViewModel $viewModel;
 

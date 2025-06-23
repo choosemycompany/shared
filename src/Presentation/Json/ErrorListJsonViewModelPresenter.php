@@ -9,11 +9,12 @@ use ChooseMyCompany\Shared\Domain\Response\ErrorListResponse;
 use ChooseMyCompany\Shared\Domain\Service\ErrorListProvider;
 use ChooseMyCompany\Shared\Domain\Service\ErrorListViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\PresenterState;
+use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 use ChooseMyCompany\Shared\Domain\ValueObject\Error;
 use ChooseMyCompany\Shared\Presentation\ViewModel\Json\ErrorListJsonViewModel;
 use ChooseMyCompany\Shared\Presentation\ViewModel\Shared\ErrorViewModel;
 
-final class ErrorListJsonViewModelPresenter implements ErrorListViewModelPresenter, PresenterState, ErrorListProvider
+final class ErrorListJsonViewModelPresenter implements ErrorListViewModelPresenter, PresenterState, ErrorListProvider, ViewModelAccess
 {
     private ErrorList $errors;
 

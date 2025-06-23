@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace ChooseMyCompany\Shared\Extension\Assert;
 
-use ChooseMyCompany\Shared\Domain\Error\ErrorList;
 use Assert\InvalidArgumentException;
 use Assert\LazyAssertionException as BaseLazyAssertionException;
+use ChooseMyCompany\Shared\Domain\List\ErrorList;
+use ChooseMyCompany\Shared\Domain\ValueObject\Error;
 
 class LazyAssertionException extends BaseLazyAssertionException
 {
@@ -14,28 +15,30 @@ class LazyAssertionException extends BaseLazyAssertionException
 
     /**
      * @param InvalidArgumentException[] $errors
-     * @param mixed                      $message
      */
     public function __construct($message, array $errors)
     {
-        $this->errors = new ErrorList();
-        $this->collectErrors($errors);
-
+        $this->errors = new ErrorList(...$this->collectErrors($errors));
         parent::__construct($message, $errors);
     }
 
     /**
-     * @param InvalidArgumentException[] $errors
+     * @param  InvalidArgumentException[] $errors
+     * @return Error[]
      */
-    private function collectErrors(array $errors): void
+    private function collectErrors(array $errors): array
     {
+        $result = [];
+
         foreach ($errors as $error) {
-            if ($error instanceof LazyAssertionException) {
-                $this->collectErrors($error->getErrorExceptions());
+            if ($error instanceof self) {
+                $result = [...$result, ...$error->getErrors()->all()];
             } else {
-                $this->errors->addError($error->getMessage(), $error->getPropertyPath());
+                $result[] = new Error($error->getMessage(), $error->getPropertyPath());
             }
         }
+
+        return $result;
     }
 
     public function getErrors(): ErrorList
