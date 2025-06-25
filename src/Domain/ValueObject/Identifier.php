@@ -29,13 +29,15 @@ abstract class Identifier implements \Stringable
 
     private static function fromString(string $value): static
     {
+        self::assertValid($value);
+
         return new static(Uuid::from($value));
     }
 
     public static function tryFrom(string $value): ?static
     {
         try {
-            return self::from($value);
+            return static::from($value);
         } catch (\Throwable) {
             return null;
         }
@@ -56,7 +58,7 @@ abstract class Identifier implements \Stringable
             )
         );
 
-        return $other->uuid->toString() === $this->uuid->toString();
+        return $other->toString() === $this->toString();
     }
 
     public static function validate(mixed $value): bool|string
