@@ -36,7 +36,7 @@ final class CreationResult implements FailureResult, ResultStatus
      */
     public static function failure(ErrorList $errors): self
     {
-        /* @var self<never> */
+        /** @var self<never> */
         return new self(false, null, $errors);
     }
 
