@@ -122,8 +122,6 @@ final class UserRegisterJsonPresenter extends ResourceViewModelPresenter
 
 ## 📚 Présentateurs spécialisés
 
-Plusieurs classes concrètes sont fournies pour couvrir les cas d’usage courants, toutes héritant de `ResourceViewModelPresenter` (ou variantes collection) avec un `ViewModel` JSON adapté :
-
 ### 🎉 Présentateurs de succès (JSON)
 
 | Classe                            | Usage                       | ViewModel retourné               |
@@ -144,8 +142,6 @@ Plusieurs classes concrètes sont fournies pour couvrir les cas d’usage couran
 | `ErrorListJsonViewModelPresenter`   | Liste d’erreurs métier                  |
 | `NoContentJsonViewModelPresenter`   | Réponse vide (204), avec fallback erreurs |
 
-Chaque classe implémente `PresenterState` et `ViewModelAccess`, ce qui permet au système principal (`ResourceViewModelPresenter` ou `NoContentViewModelPresenter`) de déléguer automatiquement au bon presenter d’erreur s’il a été activé.
-
 ---
 
 ### 🧱 Composition claire
@@ -157,7 +153,6 @@ Ces classes peuvent être injectées en tant que services Symfony, et utilisées
 ### 🔁 Exemple d’usage combiné
 
 ```php
-
 /**
  * @extends RetrieveJsonViewModelPresenter<UserRetrieveResponse, UserRetrieve>
  */
@@ -167,7 +162,7 @@ final class UserRetrieveJsonPresenter extends RetrieveJsonViewModelPresenter
     {
         return $response->entity;
     }
-    
+
     protected function createViewModel(): JsonViewModel
     {
         return $this->initializeViewModel(
@@ -181,4 +176,28 @@ final class UserRetrieveJsonPresenter extends RetrieveJsonViewModelPresenter
 
 ---
 
-Ces présentateurs permettent une **standardisation** complète des réponses RESTful de type JSON dans un projet Clean Architecture.
+## 🧩 `ErrorListDomainPresenter`
+
+```php
+final class ErrorListDomainPresenter implements ErrorListPresenter, PresenterState, ErrorListProvider
+{
+    private ErrorList $errors;
+
+    public function present(ErrorListResponse $response): void
+    {
+        $this->errors = $response->errors;
+    }
+
+    public function hasBeenPresented(): bool
+    {
+        return isset($this->errors);
+    }
+
+    public function provide(): ErrorList
+    {
+        return $this->errors;
+    }
+}
+```
+
+Cette implémentation permet de manipuler une liste d’erreurs métier dans le domaine, sans dépendre d’un format de sortie spécifique. Elle peut être utilisée dans des décorateurs, validateurs ou tests.
