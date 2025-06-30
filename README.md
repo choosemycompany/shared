@@ -30,7 +30,7 @@ abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAc
 
 ## 🔁 Cycle de vie standard
 
-1. Le UseCase exécute sa logique et présente un objet `TResponse`
+1. Le UseCase exécute sa logique et retourne un objet `TResponse`
 2. Le `Presenter` :
    - Vérifie si une erreur métier, un refus d’accès ou un `not found` a été présenté
    - Sinon, extrait une `TResource` à partir de la `TResponse`
@@ -39,7 +39,6 @@ abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAc
 ```php
 $response = $useCase->execute($request);
 $presenter->present($response);
-
 return $presenter->viewModel();
 ```
 
@@ -93,6 +92,9 @@ Les erreurs sont gérées par trois presenters injectés dans le `ResourceViewMo
 ## 🔨 Exemple concret
 
 ```php
+/**
+ * @extends ResourceViewModelPresenter<UserRegisterResponse, UserRetrieve, UserRegisterJsonViewModel>
+ */
 final class UserRegisterJsonPresenter extends ResourceViewModelPresenter
 {
     protected function extract(mixed $response): User
@@ -100,9 +102,9 @@ final class UserRegisterJsonPresenter extends ResourceViewModelPresenter
         return $response->user;
     }
 
-    protected function createViewModel(): JsonUserViewModel
+    protected function createViewModel(): UserRegisterJsonViewModel
     {
-        return new JsonUserViewModel($this->resource);
+        return new UserRegisterJsonViewModel($this->resource->identifier);
     }
 }
 ```
@@ -115,3 +117,68 @@ final class UserRegisterJsonPresenter extends ResourceViewModelPresenter
 - ✅ Uniformisation de la présentation
 - ✅ Gestion d’erreurs cohérente
 - ✅ Vue unique et typée
+
+---
+
+## 📚 Présentateurs spécialisés
+
+Plusieurs classes concrètes sont fournies pour couvrir les cas d’usage courants, toutes héritant de `ResourceViewModelPresenter` (ou variantes collection) avec un `ViewModel` JSON adapté :
+
+### 🎉 Présentateurs de succès (JSON)
+
+| Classe                            | Usage                       | ViewModel retourné               |
+|----------------------------------|-----------------------------|----------------------------------|
+| `RegisterJsonViewModelPresenter` | Pour les cas de création    | `RegisterJsonViewModel`         |
+| `RetrieveJsonViewModelPresenter` | Pour les cas de lecture     | `RetrieveJsonViewModel`         |
+| `UpdateJsonViewModelPresenter`   | Pour les cas de mise à jour | `UpdateJsonViewModel`           |
+| `CollectionJsonViewModelPresenter`| Pour les listes (paginées ou non) | `CollectionJsonViewModel` ou `PaginatedCollectionJsonViewModel` |
+
+---
+
+### ❌ Présentateurs d’erreurs
+
+| Classe                               | Rôle                                    |
+|-------------------------------------|-----------------------------------------|
+| `NotFoundJsonViewModelPresenter`    | Ressource introuvable                   |
+| `AccessDeniedJsonViewModelPresenter`| Accès interdit à une ressource          |
+| `ErrorListJsonViewModelPresenter`   | Liste d’erreurs métier                  |
+| `NoContentJsonViewModelPresenter`   | Réponse vide (204), avec fallback erreurs |
+
+Chaque classe implémente `PresenterState` et `ViewModelAccess`, ce qui permet au système principal (`ResourceViewModelPresenter` ou `NoContentViewModelPresenter`) de déléguer automatiquement au bon presenter d’erreur s’il a été activé.
+
+---
+
+### 🧱 Composition claire
+
+Ces classes peuvent être injectées en tant que services Symfony, et utilisées dans les presenters métiers pour centraliser la transformation des réponses en ViewModels sérialisables.
+
+---
+
+### 🔁 Exemple d’usage combiné
+
+```php
+
+/**
+ * @extends RetrieveJsonViewModelPresenter<UserRetrieveResponse, UserRetrieve>
+ */
+final class UserRetrieveJsonPresenter extends RetrieveJsonViewModelPresenter
+{
+    protected function extract(mixed $response): MyEntity
+    {
+        return $response->entity;
+    }
+    
+    protected function createViewModel(): JsonViewModel
+    {
+        return $this->initializeViewModel(
+            new UserRetrieveViewModel(
+                $this->resource->identifier,
+            ),
+        );
+    }
+}
+```
+
+---
+
+Ces présentateurs permettent une **standardisation** complète des réponses RESTful de type JSON dans un projet Clean Architecture.
