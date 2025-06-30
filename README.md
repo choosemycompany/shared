@@ -201,3 +201,41 @@ final class ErrorListDomainPresenter implements ErrorListPresenter, PresenterSta
 ```
 
 Cette implémentation permet de manipuler une liste d’erreurs métier dans le domaine, sans dépendre d’un format de sortie spécifique. Elle peut être utilisée dans des décorateurs, validateurs ou tests.
+
+---
+
+## 🧱 Présentateurs abstraits disponibles
+
+Le système propose trois bases différentes de presenters, selon la nature de la réponse à présenter :
+
+| Classe                             | Utilisation principale                         | Particularités                            |
+|-----------------------------------|-------------------------------------------------|-------------------------------------------|
+| `ResourceViewModelPresenter`      | Pour une réponse contenant une ressource unique| Gère aussi les erreurs                    |
+| `CollectionResourceViewModelPresenter` | Pour des collections avec pagination | Gère aussi les erreurs et la pagination   |
+| `DirectViewModelPresenter`        | Pour des réponses directes sans extraction     | Aucune gestion d’erreurs, très minimaliste|
+
+---
+
+### 🔎 `ResourceViewModelPresenter`
+
+- Utilisé quand la réponse contient un objet métier unique (ex: `User`, `Organization`, etc.).
+- Permet d’extraire et transformer cette ressource en `ViewModel`.
+
+---
+
+### 📦 `CollectionResourceViewModelPresenter`
+
+- Idéal pour des listes de ressources (ex: `Job[]`, `Survey[]`) avec ou sans pagination.
+- Extrait la liste et éventuellement les métadonnées de pagination.
+
+---
+
+### ⚡ `DirectViewModelPresenter`
+
+- À utiliser pour les cas très simples ou statiques (ex: réponse booléenne, message technique).
+- Pas d’extraction métier : la réponse EST le ViewModel.
+- Ne gère pas les erreurs (`ErrorList`, `NotFound`, `AccessDenied`) — tout doit être déjà filtré en amont.
+
+---
+
+Ces trois abstractions permettent de couvrir **tous les formats de réponse possibles** dans la couche de présentation tout en respectant la Clean Architecture.
