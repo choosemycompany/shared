@@ -351,3 +351,80 @@ $this->command->register($user);
 ```
 
 ✅ Grâce à `CreationResult`, la Factory reste **autonome, testable et explicite**, sans propager d’exceptions dans le flow nominal.
+
+---
+
+## ✅ `ValidationResult` : pour les règles métier et validations d’entrée
+
+`ValidationResult` est utilisé pour encapsuler le résultat d’une **validation métier** ou d’une **vérification d’entrée** sans lancer d’exception.
+
+---
+
+### 🧪 Validation d’un `Request`
+
+```php
+$validationResult = $this->requestValidation->validate($request);
+
+if ($validationResult->hasFailed()) {
+    $this->presentErrors($this->errorsPresenter, $validationResult);
+    return;
+}
+
+$this->userCase->execute($request, $presenter);
+```
+
+Cela permet de chaîner les validations sans casser le flot nominal.
+
+---
+
+### 📌 Exemple : `UserRegisterRequestValidator`
+
+```php
+final class UserRegisterRequestValidator implements UserRegisterRequestValidation
+{
+    public function validate(UserRegisterRequest $request): ValidationResult
+    {
+        return AssertValidation::validateLazy(fn(LazyAssertion $lazy) => $this->assert($lazy, $request));
+    }
+
+    private function assert(LazyAssertion $lazy, UserRegisterRequest $request): void
+    {
+        AssertValidation::validateLazyField($lazy, $request->email, 'email', [EmailAddress::class, 'validate']);
+        AssertValidation::validateLazyField($lazy, $request->language, 'language', [Language::class, 'validate']);
+    }
+}
+```
+
+---
+
+### 📌 Exemple : `UserRegisterPolicyValidator`
+
+```php
+final class UserRegisterPolicyValidator implements UserRegisterPolicyValidation
+{
+    public function __construct(
+        private readonly UserUniquenessVerification $uniquenessVerification,
+    ) {}
+
+    public function validate(UserRegisterRequest $request): ValidationResult
+    {
+        return AssertValidation::validateSimple(fn () => $this->verify($request));
+    }
+
+    private function verify(UserRegisterRequest $request): void
+    {
+        $filter = UserFilter::byEmail($request->getEmail())
+    
+        AssertValidation::validateSimpleField(
+            $request->identifier,
+            'email',
+            fn ($filter) => $this->uniquenessVerification->unique($filter),
+            'Email already used'
+         );
+    }
+}
+```
+
+---
+
+✅ `ValidationResult` permet de **composer plusieurs validations successives**, tout en conservant une logique pure, testable et sans dépendance à une couche technique (ex: exceptions, HTTP...).
