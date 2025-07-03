@@ -8,6 +8,7 @@ use ChooseMyCompany\Shared\Domain\Service\AccessDeniedViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\ErrorListViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\NotFoundViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\PresenterState;
+use ChooseMyCompany\Shared\Domain\Service\ResetState;
 use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 use ChooseMyCompany\Shared\Domain\ValueObject\Pagination\PaginationDetails;
 
@@ -16,7 +17,7 @@ use ChooseMyCompany\Shared\Domain\ValueObject\Pagination\PaginationDetails;
  * @template TResources
  * @template TViewModel
  */
-abstract class CollectionResourceViewModelPresenter implements PresenterState, ViewModelAccess
+abstract class CollectionResourceViewModelPresenter implements PresenterState, ViewModelAccess, ResetState
 {
     /** @var TResources */
     protected mixed $resources;
@@ -90,20 +91,22 @@ abstract class CollectionResourceViewModelPresenter implements PresenterState, V
             return $this->notFoundPresenter->viewModel();
         }
 
-        if ($this->hasNotBeenPresented()) {
-            throw new \LogicException('No response has been presented. Call present() before viewModel().');
+        if ($this->hasBeenPresented()) {
+            return $this->createViewModel();
         }
 
-        return $this->createViewModel();
-    }
-
-    private function hasNotBeenPresented(): bool
-    {
-        return !$this->presented;
+        throw new \LogicException('No response has been presented. Call present() before viewModel().');
     }
 
     /**
      * @return TViewModel
      */
     abstract protected function createViewModel(): mixed;
+
+    public function reset(): void
+    {
+        $this->presented = false;
+        unset($this->resources);
+        unset($this->pagination);
+    }
 }
