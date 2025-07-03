@@ -8,6 +8,7 @@ use ChooseMyCompany\Shared\Domain\Service\AccessDeniedViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\ErrorListViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\NotFoundViewModelPresenter;
 use ChooseMyCompany\Shared\Domain\Service\PresenterState;
+use ChooseMyCompany\Shared\Domain\Service\ResetState;
 use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 
 /**
@@ -15,7 +16,7 @@ use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
  * @template TResource
  * @template TViewModel
  */
-abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAccess
+abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAccess, ResetState
 {
     /** @var TResource */
     protected mixed $resource;
@@ -53,11 +54,6 @@ abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAc
         return $this->presented;
     }
 
-    private function hasNotBeenPresented(): bool
-    {
-        return !$this->presented;
-    }
-
     /**
      * @return TViewModel
      *
@@ -77,11 +73,11 @@ abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAc
             return $this->notFoundPresenter->viewModel();
         }
 
-        if ($this->hasNotBeenPresented()) {
-            throw new \LogicException('No response has been presented. Call present() before viewModel().');
+        if ($this->hasBeenPresented()) {
+            return $this->createViewModel();
         }
 
-        return $this->createViewModel();
+        throw new \LogicException('No response has been presented. Call present() before viewModel().');
     }
 
     /**
@@ -94,4 +90,10 @@ abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAc
      * @return TViewModel
      */
     abstract protected function createViewModel(): mixed;
+
+    public function reset(): void
+    {
+        $this->presented = false;
+        unset($this->resource);
+    }
 }
