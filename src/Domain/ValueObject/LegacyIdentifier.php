@@ -36,7 +36,7 @@ abstract class LegacyIdentifier implements \Stringable
     public static function tryFrom(mixed $value): ?static
     {
         try {
-            return new static($value);
+            return static::from($value);
         } catch (\Throwable) {
             return null;
         }
