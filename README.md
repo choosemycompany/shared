@@ -97,15 +97,17 @@ Les erreurs sont gérées par trois presenters injectés dans le `ResourceViewMo
 
 ---
 
-## ✅ Sécurité
+## 🔒 Sécurité du Presenter — et gestion avec les décorateurs
 
-- `present()` ne peut être appelé qu’une fois
-- `viewModel()` lève une exception si aucun `present()` n’a été fait
-- Si une erreur a été présentée, elle prend le dessus sur le ViewModel par défaut
+Le système impose un cycle de vie strict à tout presenter :
+
+- ✅ `present()` ne peut être appelé **qu’une seule fois**
+- ❌ `viewModel()` lève une exception si `present()` n’a pas été préalablement appelé
+- 🛑 Si une erreur (`ErrorList`, `AccessDenied`, `NotFound`) a été présentée, elle **prime** sur toute autre sortie `ViewModel`
 
 ---
 
-## 🔨 Exemple concret
+### 🔨 Exemple concret
 
 ```php
 /**
@@ -127,12 +129,89 @@ final class UserRegisterJsonPresenter extends ResourceViewModelPresenter
 
 ---
 
-## 🧪 Avantages
+### 🧱 Exemple avec décorateur
 
-- ✅ Découplage complet
-- ✅ Uniformisation de la présentation
-- ✅ Gestion d’erreurs cohérente
-- ✅ Vue unique et typée
+Le système de sécurité fonctionne également avec des décorateurs de UseCase.
+
+Prenons le cas d’un décorateur qui ajoute une étape de validation avant d’appeler le UseCase principal :
+
+```php
+final class UserRegisterUseCaseWithRequestValidation implements UserRegisteringUseCase
+{
+    use PresentErrorsTrait;
+
+    public function __construct(
+        private readonly UserRegisteringUseCase $userCase,
+        #[Autowire(service: ErrorListJsonViewModelPresenter::class)]
+        private readonly ErrorListPresenter $errorsPresenter,
+        private readonly UserRegisterRequestValidation $requestValidation
+    ) {}
+
+    public function execute(UserRegisterRequest $request, UserRegisterPresenter $presenter): void
+    {
+        $validationResult = $this->requestValidation->validate($request);
+        if ($validationResult->hasFailed()) {
+            $this->presentErrors($this->errorsPresenter, $validationResult);
+            return;
+        }
+
+        $this->userCase->execute($request, $presenter);
+    }
+}
+```
+
+Et voici le UseCase principal encapsulé par ce décorateur :
+
+```php
+final class UserRegisterUseCase implements UserRegisteringUseCase
+{
+    public function __construct(
+        private readonly UserRegisterCreation $creation,
+        private readonly UserRegisterCommand $command,
+    ) {
+    }
+
+    public function execute(UserRegisterRequest $request, UserRegisterPresenter $presenter): void
+    {
+        $creationResult = $this->creation->create($request);
+
+        $user = $creationResult->resource();
+        $this->command->register($user);
+
+        $presenter->present(
+            new UserRegisterResponse(user: $user)
+        );
+    }
+}
+```
+
+Même si une erreur est détectée par le décorateur, elle peut être **présentée en amont**, et toute tentative ultérieure de présenter un `ViewModel` par le UseCase principal sera ignorée.
+
+---
+
+### 🛡️ Pourquoi ce système est robuste
+
+#### ✅ 1. Une seule source de vérité
+- Une seule méthode `present()` est appelée dans tout le pipeline.
+- Toute tentative de double présentation est bloquée.
+- Le `viewModel()` renvoie la réponse la plus prioritaire (erreur ou succès).
+
+#### ✅ 2. Compatible avec les décorateurs empilés
+- Chaque décorateur peut présenter une erreur avant d’exécuter le UseCase suivant.
+- L’état du presenter est partagé et respecté à chaque niveau.
+
+#### ✅ 3. Résistant aux oublis
+- Oublier d’appeler `present()` ? → `viewModel()` lève une exception explicite.
+- Appeler deux fois `present()` ? → exception.
+- Oublier complètement de présenter une réponse (dans les tests ou un handler) ? → comportement bloqué, jamais silencieux.
+
+#### ✅ 4. Testabilité
+- L’état du `Presenter` est accessible (`hasBeenPresented()`).
+- Test unitaire simple des décorateurs et UseCases sans souci de sérialisation.
+
+#### ✅ 5. Zéro effet de bord
+- Une erreur présentée verrouille l’état de sortie.
+- Aucun `ViewModel` de succès ne peut la remplacer.
 
 ---
 
@@ -149,14 +228,18 @@ final class UserRegisterJsonPresenter extends ResourceViewModelPresenter
 
 ---
 
-### ❌ Présentateurs d’erreurs
+### 🧱 Présentateurs techniques (erreurs métier, accès, absence de contenu)
 
-| Classe                               | Rôle                                    |
-|-------------------------------------|-----------------------------------------|
-| `NotFoundJsonViewModelPresenter`    | Ressource introuvable                   |
-| `AccessDeniedJsonViewModelPresenter`| Accès interdit à une ressource          |
-| `ErrorListJsonViewModelPresenter`   | Liste d’erreurs métier                  |
-| `NoContentJsonViewModelPresenter`   | Réponse vide (204), avec fallback erreurs |
+Ces présentateurs sont utilisés pour renvoyer des réponses techniques ou métier
+en cas d'erreur ou d'absence de contenu. Ils sont injectés dans les presenters principaux
+pour fournir une sortie standardisée selon la situation.
+
+| Classe                               | Rôle                                           | Type de réponse           |
+|-------------------------------------|------------------------------------------------|---------------------------|
+| `NotFoundJsonViewModelPresenter`    | Ressource introuvable                          | Erreur `404 Not Found`    |
+| `AccessDeniedJsonViewModelPresenter`| Accès interdit à une ressource                 | Erreur `403 Forbidden`    |
+| `ErrorListJsonViewModelPresenter`   | Liste d’erreurs métier                         | Erreur métier `422`       |
+| `NoContentJsonViewModelPresenter`   | Réponse vide avec possibilité d’erreurs        | Réponse `204 No Content`  |
 
 ---
 
@@ -197,16 +280,19 @@ final class UserRetrieveJsonPresenter extends RetrieveJsonViewModelPresenter
 ```php
 final class ErrorListDomainPresenter implements ErrorListPresenter, PresenterState, ErrorListProvider
 {
+    private bool $presented = false;
+
     private ErrorList $errors;
 
     public function present(ErrorListResponse $response): void
     {
+        $this->presented = true;
         $this->errors = $response->errors;
     }
 
     public function hasBeenPresented(): bool
     {
-        return isset($this->errors);
+        return $this->presented;
     }
 
     public function provide(): ErrorList
