@@ -20,11 +20,11 @@ abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAc
 
 ### Typage générique
 
-| Type         | Description                                      |
-|--------------|--------------------------------------------------|
-| `TResponse`  | Réponse brute retournée par le UseCase           |
-| `TResource`  | Ressource extraite depuis la réponse             |
-| `TViewModel` | Donnée transformée, prête à être présentée       |
+| Type         | Description                                      | Cas d'application                                    |
+|--------------|--------------------------------------------------|------------------------------------------------------|
+| `TResponse`  | Réponse brute retournée par le UseCase           | UserRegisterResponse, SurveyListResponse             |
+| `TResource`  | Ressource extraite depuis la réponse             | User, Survey, Organization[]                         |
+| `TViewModel` | Donnée transformée, prête à être présentée       | UserRegisterJsonViewModel, PaginatedSurveyViewModel  |
 
 ---
 
@@ -46,18 +46,34 @@ return $presenter->viewModel();
 
 ## ❌ Plus besoin de passer le `Presenter` dans `execute()`
 
-### Avant
+Historiquement, certains UseCases recevaient un `Presenter` en paramètre :
 
 ```php
 $useCase->execute($request, $presenter);
 ```
 
-### Maintenant
+Ce modèle reste **possible** si on le souhaite.
+
+Cependant, grâce au nouveau système de `ViewModelPresenter`, il devient désormais **optionnel**.
+
+### ✅ Nouvelle approche
 
 ```php
 $response = $useCase->execute($request);
 $presenter->present($response);
 ```
+
+Cela permet :
+
+- De rendre les UseCases **plus simples à tester**
+- D’exécuter la logique métier indépendamment de toute logique de présentation
+- De **découpler encore davantage** le domaine et la présentation
+
+On passe d’un système **"poussé"** (le UseCase pousse sa réponse dans le presenter),  
+à un système **"tiré"** (le presenter vient chercher ce qu’il doit afficher).
+
+Cette approche respecte toujours les principes SOLID, tout en **apportant de la souplesse** à l'appelant.
+
 
 ### ✅ Avantages
 
@@ -370,7 +386,7 @@ if ($validationResult->hasFailed()) {
     return;
 }
 
-$this->userCase->execute($request, $presenter);
+$this->userCase->execute($request);
 ```
 
 Cela permet de chaîner les validations sans casser le flot nominal.
