@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ChooseMyCompany\Shared\Domain\Trait;
 
+use ChooseMyCompany\Shared\Domain\ValueObject\Order\Order;
 use Doctrine\ORM\QueryBuilder;
 
 trait ApplyOrderTrait
