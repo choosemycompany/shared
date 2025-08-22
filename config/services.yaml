@@ -17,7 +17,7 @@ services:
     event_bus_dispatcher:
         class: ChooseMyCompany\Shared\Infrastructure\EventBus\Symfony\Dispatcher\SymfonyEventDispatcher
         arguments:
-            $eventDispatcher: '@event.dispatcher'
+            $eventDispatcher: '@event_dispatcher'
 
     # ----------------------------------------------------
     # Message bus (dispatcher)

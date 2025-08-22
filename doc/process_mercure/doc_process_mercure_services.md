@@ -123,7 +123,7 @@ Chaque attacher enregistre une **callback** sur le Process. Quand l’état chan
   - `$notificationPublisher: @process_notification_publisher_mercure`
   - **Action** : à chaque **state change**, publie la notification correspondante via Mercure.
 
-- `process_attacher_state_change_multiple_mercure` → `MultipleProcessStateChangeAttacher`
+- `process_attacher_state_change_mercure` → `MultipleProcessStateChangeAttacher`
 
   - **Args (liste)** : compose tous les attacheurs ci‑dessus ; un seul point d’attache pour le Process.
 
@@ -138,7 +138,7 @@ Chaque attacher enregistre une **callback** sur le Process. Quand l’état chan
 
 - `event_listener_process_attach_state_change_on_loaded_mercure` → `AttachProcessStateChangeOnProcessLoadedEventListener`
 
-  - `$attacher: @process_attacher_state_change_multiple_mercure`
+  - `$attacher: @process_attacher_state_change_mercure`
   - **Rôle** : à ce même évènement, **attache** l’ensemble des callbacks (started/in\_progress/completed/failed + notifications) au Process chargé.
 
 ---

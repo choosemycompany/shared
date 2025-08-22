@@ -14,9 +14,9 @@ final class MultipleInitiation implements Initiation
     private array $initiations;
 
     public function __construct(
-        Initiation ...$initiation,
+        Initiation ...$initiations,
     ) {
-        $this->initiations = $initiation;
+        $this->initiations = $initiations;
     }
 
     public function initiation(): void
