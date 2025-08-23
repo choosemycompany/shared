@@ -10,13 +10,13 @@ use ChooseMyCompany\Shared\Domain\Service\ProcessProvider;
 final class ProcessProgressCompletion implements Completion
 {
     public function __construct(
-        private readonly ProcessProvider $provider,
+        private readonly ProcessProvider $processProvider,
     ) {
     }
 
     public function complete(): void
     {
-        $process = $this->provider->provide();
+        $process = $this->processProvider->provide();
 
         if ($process->hasStateFailed()) {
             return;

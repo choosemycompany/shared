@@ -3,6 +3,10 @@ services:
         autowire: false
         autoconfigure: false
 
+    _instanceof:
+        ChooseMyCompany\Shared\Domain\Service\ResetState:
+            tags: [ { name: 'kernel.reset', method: reset } ]
+
     # ----------------------------------------------------
     # Identifiers
     # ----------------------------------------------------
@@ -30,3 +34,12 @@ services:
         arguments:
             $bus: '@command.bus'
             $envelopeFactory: '@envelope_factory'
+
+    # ----------------------------------------------------
+    # Presenters (process & error)
+    # ----------------------------------------------------
+    presenter_error_list_domain:
+        class: ChooseMyCompany\Shared\Presentation\Domain\ErrorListDomainPresenter
+
+    presenter_error_list_json:
+        alias: ChooseMyCompany\Shared\Presentation\Presenter\Json\ErrorListJsonPresenter

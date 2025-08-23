@@ -10,13 +10,13 @@ use ChooseMyCompany\Shared\Domain\Service\ProcessProvider;
 final class ProcessStartInitiation implements Initiation
 {
     public function __construct(
-        private readonly ProcessProvider $provider,
+        private readonly ProcessProvider $processProvider,
     ) {
     }
 
     public function initiation(): void
     {
-        $process = $this->provider->provide();
+        $process = $this->processProvider->provide();
 
         $process->started();
     }

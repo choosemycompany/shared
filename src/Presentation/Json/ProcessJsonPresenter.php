@@ -4,33 +4,46 @@ declare(strict_types=1);
 
 namespace ChooseMyCompany\Shared\Presentation\Json;
 
-use ChooseMyCompany\Shared\Domain\Process\Process;
-use ChooseMyCompany\Shared\Domain\Response\ProcessResponse;
-use ChooseMyCompany\Shared\Domain\Service\ProcessPresenter;
+use ChooseMyCompany\Shared\Domain\Service\PresenterState;
 use ChooseMyCompany\Shared\Domain\Service\ProcessProvider;
-use ChooseMyCompany\Shared\Presentation\Shared\ResourceViewModelPresenter;
+use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
+use ChooseMyCompany\Shared\Presentation\ViewModel\Json\JsonViewModel;
 use ChooseMyCompany\Shared\Presentation\ViewModel\Json\ProcessJsonViewModel;
 
-/**
- * @extends ResourceViewModelPresenter<ProcessResponse, Process, ProcessJsonViewModel>
- */
-final class ProcessJsonPresenter extends ResourceViewModelPresenter implements ProcessPresenter, ProcessProvider
+final class ProcessJsonPresenter implements ViewModelAccess
 {
-    protected function extract(mixed $response): Process
-    {
-        return $response->process;
+    /**
+     * @param PresenterState&ViewModelAccess<JsonViewModel> $errorsOutcome
+     */
+    public function __construct(
+        protected readonly ViewModelAccess&PresenterState $errorsOutcome,
+        protected readonly ProcessProvider&PresenterState $processOutcome,
+    ) {
     }
 
-    protected function createViewModel(): ProcessJsonViewModel
+    /**
+     * @throws \LogicException
+     */
+    public function viewModel(): JsonViewModel
     {
+        if ($this->errorsOutcome->hasBeenPresented()) {
+            return $this->errorsOutcome->viewModel();
+        }
+
+        if ($this->processOutcome->hasBeenPresented()) {
+            return $this->createViewModel();
+        }
+
+        throw new \LogicException('No response has been presented. Call present() before viewModel().');
+    }
+
+    private function createViewModel(): ProcessJsonViewModel
+    {
+        $process = $this->processOutcome->provide();
+
         return new ProcessJsonViewModel(
-            identifier: $this->resource->identifier->toString(),
-            status: $this->resource->state()->toString(),
+            identifier: $process->identifier->toString(),
+            status: $process->state()->toString(),
         );
-    }
-
-    public function provide(): Process
-    {
-        return $this->resource;
     }
 }
