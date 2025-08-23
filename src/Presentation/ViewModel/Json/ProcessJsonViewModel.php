@@ -14,6 +14,6 @@ final class ProcessJsonViewModel implements JsonViewModel
 
     public function getHttpCode(): int
     {
-        return 200;
+        return 202;
     }
 }

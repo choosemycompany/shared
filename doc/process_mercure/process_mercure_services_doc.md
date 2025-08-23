@@ -58,17 +58,7 @@ Depuis cette refonte, **les attachers sont désormais appliqués dès l’initia
 
 ## 3.1. Diagramme du flux
 
-```plantuml
-@startuml
-start
-:Process Initiation;
-:Attach Callbacks (state change + notifications);
-:Start Process (Mercure);
-:Update Progress;
-:Finalize or Handle Failure;
-stop
-@enduml
-```
+![flux.svg](flux.svg)
 
 ## 3.2. Diagramme de séquence (détaillé)
 
