@@ -13,8 +13,6 @@ final class Process
      */
     private array $stateChangedCallbacks = [];
 
-    private mixed $viewModel;
-
     public function __construct(
         public readonly ProcessIdentifier $identifier,
     ) {
@@ -74,15 +72,5 @@ final class Process
         foreach ($this->stateChangedCallbacks as $callback) {
             $callback($this);
         }
-    }
-
-    public function withViewModel(mixed $viewModel): void
-    {
-        $this->viewModel = $viewModel;
-    }
-
-    public function viewModel(): mixed
-    {
-        return $this->viewModel;
     }
 }

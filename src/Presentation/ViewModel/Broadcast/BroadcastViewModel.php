@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\ViewModel\Mercure;
+namespace ChooseMyCompany\Shared\Presentation\ViewModel\Broadcast;
 
-interface MercureViewModel
+interface BroadcastViewModel
 {
     /**
      * @return string|string[]

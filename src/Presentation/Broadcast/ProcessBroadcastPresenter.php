@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\Mercure;
+namespace ChooseMyCompany\Shared\Presentation\Broadcast;
 
 use ChooseMyCompany\Shared\Domain\Service\ProcessProvider;
 use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
-use ChooseMyCompany\Shared\Presentation\ViewModel\Mercure\ProcessMercureViewModel;
+use ChooseMyCompany\Shared\Presentation\ViewModel\Broadcast\ProcessBroadcastViewModel;
 
-final class ProcessMercurePresenter implements ViewModelAccess
+final class ProcessBroadcastPresenter implements ViewModelAccess
 {
     public function __construct(
         private readonly ProcessProvider $processProvider,
     ) {
     }
 
-    public function viewModel(): ProcessMercureViewModel
+    public function viewModel(): ProcessBroadcastViewModel
     {
         $process = $this->processProvider->provide();
 
-        return new ProcessMercureViewModel(
+        return new ProcessBroadcastViewModel(
             topics: $process->identifier->toString(),
             status: $process->state()->toString(),
         );

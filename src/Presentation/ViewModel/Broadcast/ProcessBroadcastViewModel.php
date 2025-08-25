@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\ViewModel\Mercure;
+namespace ChooseMyCompany\Shared\Presentation\ViewModel\Broadcast;
 
-class ProcessMercureViewModel implements MercureViewModel
+class ProcessBroadcastViewModel implements BroadcastViewModel
 {
     /**
      * @param string|string[] $topics

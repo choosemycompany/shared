@@ -10,35 +10,35 @@ services:
     # ----------------------------------------------------
     # Presenters
     # ----------------------------------------------------
-    presenter_process_domain:
+    process_presenter_domain:
         class: ChooseMyCompany\Shared\Presentation\Domain\ProcessDomainPresenter
 
-    presenter_process_json:
+    process_presenter_json:
         class: ChooseMyCompany\Shared\Presentation\Json\ProcessJsonPresenter
         arguments:
-            $errorsOutcome: '@presenter_error_list_json'
-            $processOutcome: '@presenter_process_domain'
+            $errorsOutcome: '@error_list_presenter_json'
+            $processOutcome: '@process_presenter_domain'
 
-    presenter_process_mercure:
-        class: ChooseMyCompany\Shared\Presentation\Mercure\ProcessMercurePresenter
+    process_presenter_broadcast:
+        class: ChooseMyCompany\Shared\Presentation\Broadcast\ProcessBroadcastPresenter
         arguments:
-            $processProvider: '@presenter_process_domain'
+            $processProvider: '@process_presenter_domain'
 
-    presenter_error_list_mercure:
-        class: ChooseMyCompany\Shared\Presentation\Mercure\ErrorListMercurePresenter
+    process_error_list_presenter_broadcast:
+        class: ChooseMyCompany\Shared\Presentation\Broadcast\ErrorListProcessBroadcastPresenter
         arguments:
-            $errorsProvider: '@presenter_error_list_domain'
-            $processProvider: '@presenter_process_domain'
+            $errorsProvider: '@error_list_presenter_domain'
+            $processProvider: '@process_presenter_domain'
 
     # ----------------------------------------------------
     # Message bus (middleware)
     # ----------------------------------------------------
-    message_bus_middleware_add_process_stamp:
+    process_stamp_add_middleware_message_bus:
         class: ChooseMyCompany\Shared\Infrastructure\MessageBus\Messenger\Middleware\AddProcessStampMiddleware
         arguments:
-            $processOutcome: '@presenter_process_domain'
+            $processOutcome: '@process_presenter_domain'
 
-    message_bus_middleware_process_loaded_event:
+    process_loaded_event_middleware_message_bus:
         class: ChooseMyCompany\Shared\Infrastructure\MessageBus\Messenger\Middleware\ProcessLoadedEventMiddleware
         arguments:
             $eventDispatching: '@event_bus_dispatcher'
@@ -46,73 +46,62 @@ services:
     # ----------------------------------------------------
     # Event bus (event listener)
     # ----------------------------------------------------
-    event_listener_process_present_on_loaded:
+    process_present_on_loaded_event_listener:
         class: ChooseMyCompany\Shared\Domain\EventListener\PresentProcessOnProcessLoadedEventListener
         arguments:
-            $processPresenter: '@presenter_process_domain'
+            $processPresenter: '@process_presenter_domain'
         tags: [ kernel.event_listener ]
 
     # ----------------------------------------------------
     # Broadcaster
     # ----------------------------------------------------
-    process_update_factory_mercure:
-        class: ChooseMyCompany\Shared\Infrastructure\Broadcast\Mercure\Factory\MercureProcessUpdateFactory
+    update_factory_mercure:
+        class: ChooseMyCompany\Shared\Infrastructure\Broadcast\Mercure\Factory\MercureUpdateFactory
         arguments:
-            $processProvider: '@presenter_process_domain'
             $serializer: '@serializer'
 
-    process_broadcaster_mercure:
+    broadcaster_mercure:
         class: ChooseMyCompany\Shared\Infrastructure\Broadcast\Mercure\Publisher\MercureBroadcaster
         arguments:
-            $updateCreation: '@process_update_factory_mercure'
+            $updateCreation: '@update_factory_mercure'
             $hub: '@mercure.hub.default.traceable'
 
     # ----------------------------------------------------
     # Attachers
     # ----------------------------------------------------
-    process_attacher_view_model_mercure:
-        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessViewModelCallbackAttacher
+    process_broadcasting_attacher_mercure:
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessBroadcastingAttacher
         abstract: true
         arguments:
-            $processProvider: '@presenter_process_domain'
-            $viewModelAccess: '@presenter_process_mercure'
+            $processProvider: '@process_presenter_domain'
+            $viewModelAccess: '@process_presenter_broadcast'
+            $broadcasting: '@broadcaster_mercure'
 
-    process_attacher_view_model_started_mercure:
-        parent: process_attacher_view_model_mercure
-        class: ChooseMyCompany\Shared\Domain\Attacher\Process\StartedProcessViewModelCallbackAttacher
+    process_state_change_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessStateChangeBroadcastingAttacher
 
-    process_attacher_view_model_in_progress_mercure:
-        parent: process_attacher_view_model_mercure
-        class: ChooseMyCompany\Shared\Domain\Attacher\Process\InProgressProcessViewModelCallbackAttacher
+    process_started_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessStartedBroadcastingAttacher
 
-    process_attacher_view_model_completed_mercure:
-        parent: process_attacher_view_model_mercure
-        class: ChooseMyCompany\Shared\Domain\Attacher\Process\CompletedProcessViewModelCallbackAttacher
+    process_in_progress_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessInProgressBroadcastingAttacher
 
-    process_attacher_view_model_failed_mercure:
-        parent: process_attacher_view_model_mercure
-        class: ChooseMyCompany\Shared\Domain\Attacher\Process\FailedProcessViewModelCallbackAttacher
+    process_completed_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessCompletedBroadcastingAttacher
 
-    process_attacher_view_model_failed_error_list_mercure:
-        parent: process_attacher_view_model_mercure
-        class: ChooseMyCompany\Shared\Domain\Attacher\Process\FailedProcessViewModelCallbackAttacher
+    process_failed_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessFailedBroadcastingAttacher
+
+    process_failed_error_list_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessFailedBroadcastingAttacher
         arguments:
-            $viewModelAccess: '@presenter_error_list_mercure'
-
-    process_attacher_notification_process_mercure:
-        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessBroadcastingCallbackAttacher
-        arguments:
-            $processProvider: '@presenter_process_domain'
-            $broadcasting: '@process_broadcaster_mercure'
-
-    process_attacher_state_change_mercure:
-        class: ChooseMyCompany\Shared\Domain\Attacher\MultipleAttacher
-        arguments:
-            - '@process_attacher_view_model_started_mercure'
-            - '@process_attacher_view_model_in_progress_mercure'
-            - '@process_attacher_view_model_completed_mercure'
-            - '@process_attacher_view_model_failed_mercure'
-            - '@process_attacher_notification_process_mercure'
+            $viewModelAccess: '@process_error_list_presenter_broadcast'
 
     # ----------------------------------------------------
     # Initiation
@@ -121,35 +110,35 @@ services:
         class: ChooseMyCompany\Shared\Domain\Initiation\ProcessInitiation
         arguments:
             $identifierGeneration: '@generation_identifier'
-            $processPresenter: '@presenter_process_domain'
+            $processPresenter: '@process_presenter_domain'
 
-    process_initiation_attacher_mercure:
+    process_attacher_initiation_mercure:
         class: ChooseMyCompany\Shared\Domain\Initiation\AttacherInitiation
         arguments:
-            $attacher: '@process_attacher_state_change_mercure'
+            $attacher: '@process_state_change_broadcasting_attacher_mercure'
 
-    process_initiation_start:
+    process_start_initiation:
         class: ChooseMyCompany\Shared\Domain\Initiation\ProcessStartInitiation
         arguments:
-            $processProvider: '@presenter_process_domain'
+            $processProvider: '@process_presenter_domain'
 
-    process_initiation_mercure:
+    process_multiple_initiation:
         class: ChooseMyCompany\Shared\Domain\Initiation\MultipleInitiation
         arguments:
             $initiations:
-                - '@process_initiation_attacher_mercure'
-                - '@process_initiation_start'
+                - '@process_attacher_initiation_mercure'
+                - '@process_start_initiation'
 
     # ----------------------------------------------------
     # Completion
     # ----------------------------------------------------
-    process_completion_progress:
+    process_progress_completion:
         class: ChooseMyCompany\Shared\Domain\Completion\ProcessProgressCompletion
         arguments:
-            $processProvider: '@presenter_process_domain'
+            $processProvider: '@process_presenter_domain'
 
-    process_completion_finalize:
+    process_finalize_completion:
         class: ChooseMyCompany\Shared\Domain\Completion\ProcessFinalizeCompletion
         arguments:
-            $errorOutcome: '@presenter_error_list_domain'
-            $processProvider: '@presenter_process_domain'
+            $errorOutcome: '@error_list_presenter_domain'
+            $processProvider: '@process_presenter_domain'

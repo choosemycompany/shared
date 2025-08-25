@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\ViewModel\Mercure;
+namespace ChooseMyCompany\Shared\Presentation\ViewModel\Broadcast;
 
-final class ItemProcessMercureViewModel extends ProcessMercureViewModel
+final class ItemProcessBroadcastViewModel extends ProcessBroadcastViewModel
 {
     /**
      * @param string|string[] $topics

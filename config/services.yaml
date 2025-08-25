@@ -36,10 +36,10 @@ services:
             $envelopeFactory: '@envelope_factory'
 
     # ----------------------------------------------------
-    # Presenters (process & error)
+    # Presenters
     # ----------------------------------------------------
-    presenter_error_list_domain:
+    error_list_presenter_domain:
         class: ChooseMyCompany\Shared\Presentation\Domain\ErrorListDomainPresenter
 
-    presenter_error_list_json:
+    error_list_presenter_json:
         alias: ChooseMyCompany\Shared\Presentation\Presenter\Json\ErrorListJsonPresenter

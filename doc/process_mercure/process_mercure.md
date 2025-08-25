@@ -13,38 +13,37 @@ Il est également possible d’ajouter ses propres attachers ou de personnaliser
 
 Les presenters sont responsables de la présentation des données liées à l’état du process :
 
-| Service ID                     | Classe                         | Rôle                                         |
-|--------------------------------|--------------------------------|----------------------------------------------|
-| `presenter_process_domain`     | `...ProcessDomainPresenter`    | Provider + état du Process (domaine)         |
-| `presenter_process_json`       | `...ProcessJsonPresenter`      | Présentation des données en JSON             |
-| `presenter_process_mercure`    | `...ProcessMercurePresenter`   | Présentation des données au format Mercure   |
-| `presenter_error_list_mercure` | `...ErrorListMercurePresenter` | Présentation des erreurs via Mercure         |
+| Service ID                               | Classe                                  | Rôle                                       |
+|------------------------------------------|-----------------------------------------|--------------------------------------------|
+| `process_presenter_domain`               | `...ProcessDomainPresenter`             | Provider + état du Process (domaine)       |
+| `process_presenter_json`                 | `...ProcessJsonPresenter`               | Présentation des données en JSON           |
+| `process_presenter_broadcast`            | `...ProcessBroadcastPresenter`          | Présentation des données pour diffusion    |
+| `process_error_list_presenter_broadcast` | `...ErrorListProcessBroadcastPresenter` | Présentation des erreurs pour diffusion    |
 
 ## 2.2. Attachers
 
-Les attachers définissent les callbacks qui réagiront aux changements d’état du `Process` :
+Tous héritent d’un attacher générique `ProcessBroadcastingAttacher` injectant : `processProvider`, `viewModelAccess`, `broadcasting`.
 
-| Service ID                                              | Classe                                                                   | Rôle                                                                                                                                           |
-|---------------------------------------------------------|--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `process_attacher_view_model_started_mercure`           | `...StartedProcessViewModelCallbackAttacher`                             | Callback pour l’état `started`                                                                                                                 |
-| `process_attacher_view_model_in_progress_mercure`       | `...InProgressProcessViewModelCallbackAttacher`                          | Callback pour l’état `in_progress`                                                                                                             |
-| `process_attacher_view_model_completed_mercure`         | `...CompletedProcessViewModelCallbackAttacher`                           | Callback pour l’état `completed`                                                                                                               |
-| `process_attacher_view_model_failed_mercure`            | `...FailedProcessViewModelCallbackAttacher`                              | Callback pour l’état `failed`                                                                                                                  |
-| `process_attacher_view_model_failed_error_list_mercure` | `...FailedProcessViewModelCallbackAttacher` (version erreurs détaillées) |                                                                                                                                                |
-| `process_broadcaster_mercure`                           | `...MercureBroadcaster`                                                  | Diffuse l’Update Mercure via le hub (`mercure.hub.default.traceable`) pour informer en temps réel les abonnés du changement d’état du Process. |
-| `process_attacher_state_change_mercure`                 | `...MultipleAttacher`                                                    | Regroupe tous les attachers ci-dessus pour un enregistrement groupé                                                                            |
+| Service ID                                                | Classe                                                                   | Rôle                             |
+|-----------------------------------------------------------|--------------------------------------------------------------------------|----------------------------------|
+| `process_state_change_broadcasting_attacher_mercure`      | `...ProcessStateChangeBroadcastingAttacher`                              | Diffusion pour tous les états    |
+| `process_started_broadcasting_attacher_mercure`           | `...ProcessStartedBroadcastingAttacher`                                  | Diffusion à l’état `started`     |
+| `process_in_progress_broadcasting_attacher_mercure`       | `...InProgressProcessVie wModelCallbackAttacher`                         | Diffusion à l’état `in_progress` |
+| `process_completed_broadcasting_attacher_mercure`         | `...CompletedProcessViewModelCallbackAttacher`                           | Diffusion à l’état `completed`   |
+| `process_failed_broadcasting_attacher_mercure`            | `...FailedProcessViewModelCallbackAttacher`                              | Diffusion à l’état `failed`      |
+| `process_failed_error_list_broadcasting_attacher_mercure` | `...FailedProcessViewModelCallbackAttacher` (version erreurs détaillées) | Diffusion à l’état `failed`      |
 
 ## 2.3. Initiation
 
 Dès l’initiation du `Process`, les différents **attachers** sont appliqués automatiquement.  
 Les services suivants orchestrent cette phase d’initialisation :
 
-| Service ID                            | Classe                         | Rôle                                                                                                                   |
-|---------------------------------------|--------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| `process_initiation`                  | `...ProcessInitiation`         | Création du process et mise à disposition via le `ProcessProvider`, connecté au `presenter_process_domain`.            |
-| `process_initiation_attacher_mercure` | `...ProcessAttacherInitiation` | Ajout des attachers Mercure au process lors de l’initiation                                                            |
-| `process_initiation_start`            | `...ProcessStartInitiation`    | Démarrage automatique du process avec Mercure                                                                          |
-| `process_initiation_mercure`          | `...MultipleInitiation`        | Regroupe les initiations pour un démarrage cohérent du process                                                         |
+| Service ID                            | Classe                         | Rôle                                                                                                        |
+|---------------------------------------|--------------------------------|-------------------------------------------------------------------------------------------------------------|
+| `process_initiation`                  | `...ProcessInitiation`         | Création du process et mise à disposition via le `ProcessProvider`, connecté au `process_presenter_domain`. |
+| `process_attacher_initiation_mercure` | `...ProcessAttacherInitiation` | Ajout des attachers Mercure au process lors de l’initiation                                                 |
+| `process_start_initiation`            | `...ProcessStartInitiation`    | Démarrage automatique du process avec Mercure                                                               |
+| `process_multiple_initiation`         | `...MultipleInitiation`        | Regroupe les initiations pour un démarrage cohérent du process                                              |
 
 ## 2.4. Completion
 
@@ -52,15 +51,15 @@ Les services suivants orchestrent cette phase d’initialisation :
 
 | Service ID                      | Classe                         | Rôle                                                      |
 |---------------------------------|--------------------------------|-----------------------------------------------------------|
-| `process_completion_progress`   | `...ProcessProgressCompletion` | Mise à jour des informations de progression               |
-| `process_completion_finalize`   | `...ProcessFinalizeCompletion` | Finalisation du process et envoi des erreurs si présentes |
+| `process_progress_completion`   | `...ProcessProgressCompletion` | Mise à jour des informations de progression               |
+| `process_finalize_completion`   | `...ProcessFinalizeCompletion` | Finalisation du process et envoi des erreurs si présentes |
 
 ## 2.5. Event Bus (listener)
 
-- `event_listener_process_present_on_loaded` — `...PresentProcessOnProcessLoadedEventListener`  
+- `process_present_on_loaded_event_listener` — `...PresentProcessOnProcessLoadedEventListener`  
   À la réception d’un `ProcessLoadedEvent`, le listener vérifie que le `Process` n’a pas déjà été présenté (`PresenterState`).  
-  Il construit un `ProcessResponse` à partir de l’événement, puis appelle `present()` sur `presenter_process_domain`.  
-  Ainsi, `presenter_process_domain` (qui implémente **ProcessPresenter, ProcessProvider, PresenterState, ResetState**) rend le `Process` disponible via **ProcessProvider** pour les composants en aval.
+  Il construit un `ProcessResponse` à partir de l’événement, puis appelle `present()` sur `process_presenter_domain`.  
+  Ainsi, `process_presenter_domain` (qui implémente **ProcessPresenter, ProcessProvider, PresenterState, ResetState**) rend le `Process` disponible via **ProcessProvider** pour les composants en aval.
 
 ---
 
@@ -76,22 +75,22 @@ Les services suivants orchestrent cette phase d’initialisation :
 
 ## 3.3. Diagramme d’activité (UML)
 
-![process_mercure_uml_activity_v2.svg](process_mercure_uml_activity_v2.svg)
+![process_uml_activity.svg](process_uml_activity.svg)
 
 ---
 
 # 4. Mapping des services (référence YAML)
 
 - **Presenters**
-  - `presenter_process_json` → ProcessJsonPresenter
+  - `process_presenter_json` → ProcessJsonPresenter
   - `presenter_process_mercure` → ProcessMercurePresenter
   - `presenter_error_list_mercure` → ErrorListMercurePresenter
 - **Message bus / Middleware**
-  - `message_bus_middleware_add_process_stamp` → AddProcessStampMiddleware (outcome: JSON)
-  - `message_bus_middleware_process_loaded_event` → ProcessLoadedEventMiddleware (dispatch évènement via `event_bus_dispatcher`)
+  - `process_stamp_add_middleware_message_bus` → AddProcessStampMiddleware (outcome: JSON)
+  - `process_loaded_event_middleware_message_bus` → ProcessLoadedEventMiddleware (dispatch évènement via `event_bus_dispatcher`)
 - **Event bus**
   - `event_bus_dispatcher` → SymfonyEventDispatcher
-  - Listener: `event_listener_process_present_on_loaded` (présentation uniquement)
+  - Listener: `process_present_on_loaded_event_listener` (présentation uniquement)
 - **Broadcaster (Mercure)**
   - `process_update_factory_mercure` → MercureProcessUpdateFactory (processProvider + serializer)
   - `process_broadcaster_mercure` → MercureBroadcaster (hub)
@@ -104,12 +103,12 @@ Les services suivants orchestrent cette phase d’initialisation :
   - `process_attacher_state_change_mercure` (agrégateur)
 - **Initiations**
   - `process_initiation`
-  - `process_initiation_attacher_mercure`
-  - `process_initiation_start`
-  - `process_initiation_mercure` (MultipleInitiation)
+  - `process_attacher_initiation_mercure`
+  - `process_start_initiation`
+  - `process_multiple_initiation` (MultipleInitiation)
 - **Completion**
-  - `process_completion_progress`
-  - `process_completion_finalize`
+  - `process_progress_completion`
+  - `process_finalize_completion`
 
 ---
 
@@ -133,44 +132,48 @@ L’exécution d’un process suit un ordre précis pour garantir la cohérence 
 
 # 6. Variante erreurs détaillées (Failed)
 
-Pour publier une vue d’erreurs enrichie lors d’un échec, utilisez `presenter_error_list_mercure` via l’attacher dédié :
+Pour publier une vue d’erreurs enrichie lors d’un échec, utilisez `process_error_list_presenter_broadcast` via l’attacher dédié :
 
 ```yaml
-process_attacher_view_model_failed_error_list_mercure:
-    class: ChooseMyCompany\Shared\Domain\Attacher\FailedProcessViewModelCallbackAttacher
+process_failed_error_list_broadcasting_attacher_mercure:
+    class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessFailedBroadcastingAttacher
     arguments:
-        $viewModelAccess: '@presenter_error_list_mercure'
+        $viewModelAccess: '@process_error_list_presenter_broadcast'
 
-# Dans l’agrégateur, remplacez l’attacher failed standard si souhaité
 process_attacher_state_change_mercure:
     class: ChooseMyCompany\Shared\Domain\Attacher\MultipleAttacher
     arguments:
-        - '@process_attacher_view_model_started_mercure'
-        - '@process_attacher_view_model_in_progress_mercure'
-        - '@process_attacher_view_model_completed_mercure'
+        - '@process_started_broadcasting_attacher_mercure'
         - '@process_attacher_view_model_failed_error_list_mercure'
-        - '@process_broadcaster_mercure'
+        - '@process_completed_broadcasting_attacher_mercure'
+        - '@process_failed_error_list_broadcasting_attacher_mercure'
 ```
 
 # 7. Points d’extension
 
-- **Ajouter ses propres attachers** : vous pouvez créer vos services spécifiques pour enrichir ou remplacer des callbacks par défaut. Par exemple :
+- **Ajouter ses propres attachers** : vous pouvez créer vos services spécifiques pour enrichir ou remplacer des callbacks par défaut. Par exemple :
 
 ```yaml
-job_multiple_register_process_attacher_view_model_in_progress_mercure:
-    class: ChooseMyCompany\Shared\Domain\Attacher\InProgressProcessViewModelCallbackAttacher
+job_register_process_presenter_broadcast:
+    class: App\Presentation\Broadcast\Job\Register\JobRegisterProcessBroadcastPresenter
     arguments:
-        $viewModelAccess: '@presenter_job_register_mercure'
+        $processProvider: '@process_presenter_domain'
+        $jobProvider: '@job_register_presenter_domain'
 
-job_multiple_register_process_attacher_state_change_mercure:
-    class: ChooseMyCompany\Shared\Domain\Attacher\MultipleAttacher
+job_register_process_in_progress_attacher_broadcast_mercure:
+    parent: process_attacher_broadcast_mercure
+    class: App\Shared\Domain\Attacher\Process\ProcessInProgressBroadcastingAttacher
     arguments:
-        - '@process_attacher_view_model_started_mercure'
-        - '@job_multiple_register_process_attacher_view_model_in_progress_mercure'
-        - '@process_attacher_view_model_completed_mercure'
-        - '@process_attacher_view_model_failed_error_list_mercure'
-        - '@process_broadcaster_mercure'
+        $viewModelAccess: '@job_register_process_presenter_broadcast'
+
+job_multiple_register_process_attacher_state_change:
+    class: App\Shared\Domain\Attacher\MultipleAttacher
+    arguments:
+        - '@process_started_attacher_broadcast_mercure'
+        - '@job_register_process_in_progress_attacher_broadcast_mercure'
+        - '@process_completed_attacher_broadcast_mercure'
+        - '@process_failed_error_list_attacher_broadcast_mercure'
 ```
 
 - **Ajouter un nouveau canal** (ex. e‑mail) en créant un `...NotificationPublisher` et en l’intégrant dans un `MultipleAttacher` personnalisé.
-- **Changer le *****outcome***** du middleware** en injectant un presenter différent dans `message_bus_middleware_add_process_stamp`.
+- **Changer le *****outcome***** du middleware** en injectant un presenter différent dans `process_stamp_add_middleware_message_bus`.

@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\ViewModel\Mercure;
+namespace ChooseMyCompany\Shared\Presentation\ViewModel\Broadcast;
 
+use ChooseMyCompany\Shared\Presentation\ViewModel\Broadcast\ProcessBroadcastViewModel;
 use ChooseMyCompany\Shared\Presentation\ViewModel\Shared\ErrorViewModel;
 
-final class ErrorListProcessMercureViewModel extends ProcessMercureViewModel
+final class ErrorListProcesBroadcastViewModel extends ProcessBroadcastViewModel
 {
     /**
      * @param string|string[] $topics

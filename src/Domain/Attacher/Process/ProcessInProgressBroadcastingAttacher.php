@@ -6,16 +6,17 @@ namespace ChooseMyCompany\Shared\Domain\Attacher\Process;
 
 use ChooseMyCompany\Shared\Domain\Process\Process;
 
-final class InProgressProcessViewModelCallbackAttacher extends ProcessViewModelCallbackAttacher
+final class ProcessInProgressBroadcastingAttacher extends ProcessBroadcastingAttacher
 {
     public function attach(): void
     {
+        $broadcasting = $this->broadcasting;
         $viewModelAccess = $this->viewModelAccess;
 
         $this->process()->onStateChanged(
-            static function (Process $process) use ($viewModelAccess): void {
+            static function (Process $process) use ($broadcasting, $viewModelAccess): void {
                 if ($process->state()->isInProgress()) {
-                    $process->withViewModel($viewModelAccess->viewModel());
+                    $broadcasting->broadcast($viewModelAccess->viewModel());
                 }
             }
         );

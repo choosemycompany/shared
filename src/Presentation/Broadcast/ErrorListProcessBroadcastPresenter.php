@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace ChooseMyCompany\Shared\Presentation\Mercure;
+namespace ChooseMyCompany\Shared\Presentation\Broadcast;
 
 use ChooseMyCompany\Shared\Domain\Service\ErrorListProvider;
 use ChooseMyCompany\Shared\Domain\Service\ProcessProvider;
 use ChooseMyCompany\Shared\Domain\Service\ViewModelAccess;
 use ChooseMyCompany\Shared\Domain\ValueObject\Error;
-use ChooseMyCompany\Shared\Presentation\ViewModel\Mercure\ErrorListProcessMercureViewModel;
+use ChooseMyCompany\Shared\Presentation\ViewModel\Broadcast\ErrorListProcesBroadcastViewModel;
 use ChooseMyCompany\Shared\Presentation\ViewModel\Shared\ErrorViewModel;
 
-final class ErrorListMercurePresenter implements ViewModelAccess
+final class ErrorListProcessBroadcastPresenter implements ViewModelAccess
 {
     public function __construct(
         private readonly ErrorListProvider $errorsProvider,
@@ -22,7 +22,7 @@ final class ErrorListMercurePresenter implements ViewModelAccess
     /**
      * @throws \LogicException
      */
-    public function viewModel(): ErrorListProcessMercureViewModel
+    public function viewModel(): ErrorListProcesBroadcastViewModel
     {
         $errors = \array_map(
             static fn (Error $error) => new ErrorViewModel(
@@ -34,7 +34,7 @@ final class ErrorListMercurePresenter implements ViewModelAccess
 
         $process = $this->processProvider->provide();
 
-        return new ErrorListProcessMercureViewModel(
+        return new ErrorListProcesBroadcastViewModel(
             topics: $process->identifier->toString(),
             status: $process->state()->toString(),
             errors: $errors,
