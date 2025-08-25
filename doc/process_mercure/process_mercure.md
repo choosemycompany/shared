@@ -76,7 +76,7 @@ Les services suivants orchestrent cette phase d’initialisation :
 
 ## 3.3. Diagramme d’activité (UML)
 
-![process_mercure_uml_activity_v2.svg](process_mercure_uml_activity_v2.svg)
+![process_uml_activity.svg](process_uml_activity.svg)
 
 ---
 
