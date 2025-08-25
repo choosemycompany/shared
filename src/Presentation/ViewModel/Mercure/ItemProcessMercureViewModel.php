@@ -6,8 +6,11 @@ namespace ChooseMyCompany\Shared\Presentation\ViewModel\Mercure;
 
 final class ItemProcessMercureViewModel extends ProcessMercureViewModel
 {
+    /**
+     * @param string|string[] $topics
+     */
     public function __construct(
-        string $topics,
+        string|array $topics,
         string $status,
         public readonly mixed $item,
     ) {

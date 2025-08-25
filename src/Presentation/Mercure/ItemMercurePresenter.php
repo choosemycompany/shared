@@ -10,7 +10,7 @@ use ChooseMyCompany\Shared\Presentation\ViewModel\Mercure\ItemProcessMercureView
 
 /**
  * @template TResource
- * @template TResourceViewModel
+ * @template-covariant TResourceViewModel of mixed
  */
 abstract class ItemMercurePresenter implements ViewModelAccess
 {

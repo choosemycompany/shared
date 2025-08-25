@@ -6,5 +6,8 @@ namespace ChooseMyCompany\Shared\Presentation\ViewModel\Mercure;
 
 interface MercureViewModel
 {
-    public function topics(): string;
+    /**
+     * @return string|string[]
+     */
+    public function topics(): string|array;
 }

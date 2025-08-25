@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace ChooseMyCompany\Shared\Presentation\ViewModel\Mercure;
 
-use ChooseMyCompany\Shared\Presentation\ViewModel\Mercure\MercureViewModel;
-
 class ProcessMercureViewModel implements MercureViewModel
 {
+    /**
+     * @param string|string[] $topics
+     */
     public function __construct(
-        private readonly string $topics,
+        private readonly string|array $topics,
         public readonly string $status,
     ) {
     }
 
-    public function topics(): string
+    /**
+     * @return string|string[]
+     */
+    public function topics(): string|array
     {
         return $this->topics;
     }
