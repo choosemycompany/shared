@@ -1,4 +1,4 @@
-# Système de Présentation — Clean Architecture
+# Presenters
 
 ## 🎯 Objectif
 
@@ -20,25 +20,26 @@ abstract class ResourceViewModelPresenter implements PresenterState, ViewModelAc
 
 ### Typage générique
 
-| Type         | Description                                      | Cas d'application                                    |
-|--------------|--------------------------------------------------|------------------------------------------------------|
-| `TResponse`  | Réponse brute retournée par le UseCase           | UserRegisterResponse, SurveyListResponse             |
-| `TResource`  | Ressource extraite depuis la réponse             | User, Survey, Organization[]                         |
-| `TViewModel` | Donnée transformée, prête à être présentée       | UserRegisterJsonViewModel, PaginatedSurveyViewModel  |
+| Type         | Description                                | Cas d'application                                       |
+|--------------|--------------------------------------------|---------------------------------------------------------|
+| `TResponse`  | Réponse brute présentée par le UseCase     | UserRegisterResponse, OrganizationListResponse          |
+| `TResource`  | Ressource extraite depuis la réponse       | UserRegister, OrganizationList                          |
+| `TViewModel` | Donnée transformée, prête à être présentée | UserRegisterJsonViewModel, OrganizationListCsvViewModel |
 
 ---
 
 ## 🔁 Cycle de vie standard
 
-1. Le UseCase exécute sa logique et retourne un objet `TResponse`
+1. Le UseCase exécute sa logique et présente un objet `TResponse`
 2. Le `Presenter` :
    - Vérifie si une erreur métier, un refus d’accès ou un `not found` a été présenté
    - Sinon, extrait une `TResource` à partir de la `TResponse`
    - Construit un `TViewModel` depuis cette ressource
 
 ```php
-$response = $useCase->execute($request);
+$useCase->execute($request);
 $presenter->present($response);
+
 return $presenter->viewModel();
 ```
 
@@ -54,12 +55,12 @@ $useCase->execute($request, $presenter);
 
 Ce modèle reste **possible** si on le souhaite.
 
-Cependant, grâce au nouveau système de `ViewModelPresenter`, il devient désormais **optionnel**.
+Cependant, grâce au nouveau système de `ViewModelAccess`, il devient désormais **optionnel**.
 
 ### ✅ Nouvelle approche
 
 ```php
-$response = $useCase->execute($request);
+$useCase->execute($request);
 $presenter->present($response);
 ```
 
@@ -79,7 +80,7 @@ Cette approche respecte toujours les principes SOLID, tout en **apportant de la 
 
 - Découplage total entre la logique métier et la présentation
 - Meilleure testabilité des UseCases
-- Moins de paramètres à injecter
+- Moins de paramètres à faire passer
 
 ---
 
@@ -111,7 +112,7 @@ Le système impose un cycle de vie strict à tout presenter :
 
 ```php
 /**
- * @extends ResourceViewModelPresenter<UserRegisterResponse, UserRetrieve, UserRegisterJsonViewModel>
+ * @extends ResourceViewModelPresenter<UserRegisterResponse, UserRegister, UserRegisterJsonViewModel>
  */
 final class UserRegisterJsonPresenter extends ResourceViewModelPresenter
 {
@@ -147,15 +148,16 @@ final class UserRegisterUseCaseWithRequestValidation implements UserRegisteringU
         private readonly UserRegisterRequestValidation $requestValidation
     ) {}
 
-    public function execute(UserRegisterRequest $request, UserRegisterPresenter $presenter): void
+    public function execute(UserRegisterRequest $request): void
     {
         $validationResult = $this->requestValidation->validate($request);
         if ($validationResult->hasFailed()) {
             $this->presentErrors($this->errorsPresenter, $validationResult);
+
             return;
         }
 
-        $this->userCase->execute($request, $presenter);
+        $this->userCase->execute($request);
     }
 }
 ```
@@ -168,17 +170,18 @@ final class UserRegisterUseCase implements UserRegisteringUseCase
     public function __construct(
         private readonly UserRegisterCreation $creation,
         private readonly UserRegisterCommand $command,
+        private readonly UserRegisterPresenter $presenter,
     ) {
     }
 
-    public function execute(UserRegisterRequest $request, UserRegisterPresenter $presenter): void
+    public function execute(UserRegisterRequest $request, ): void
     {
         $creationResult = $this->creation->create($request);
 
         $user = $creationResult->resource();
         $this->command->register($user);
 
-        $presenter->present(
+        $this->presenter->present(
             new UserRegisterResponse(user: $user)
         );
     }
@@ -215,9 +218,9 @@ Même si une erreur est détectée par le décorateur, elle peut être **présen
 
 ---
 
-## 📚 Présentateurs spécialisés
+## 📚 Presenters spécialisés
 
-### 🎉 Présentateurs de succès (JSON)
+### 🎉 Presenters de succès (JSON)
 
 | Classe                            | Usage                       | ViewModel retourné               |
 |----------------------------------|-----------------------------|----------------------------------|
@@ -228,9 +231,9 @@ Même si une erreur est détectée par le décorateur, elle peut être **présen
 
 ---
 
-### 🧱 Présentateurs techniques (erreurs métier, accès, absence de contenu)
+### 🧱 Presenters techniques (erreurs métier, accès, absence de contenu)
 
-Ces présentateurs sont utilisés pour renvoyer des réponses techniques ou métier
+Ces Presenters sont utilisés pour renvoyer des réponses techniques ou métier
 en cas d'erreur ou d'absence de contenu. Ils sont injectés dans les presenters principaux
 pour fournir une sortie standardisée selon la situation.
 
@@ -257,12 +260,12 @@ Ces classes peuvent être injectées en tant que services Symfony, et utilisées
  */
 final class UserRetrieveJsonPresenter extends RetrieveJsonViewModelPresenter
 {
-    protected function extract(mixed $response): MyEntity
+    protected function extract(mixed $response): UserRetrieve
     {
         return $response->entity;
     }
 
-    protected function createViewModel(): JsonViewModel
+    protected function createViewModel(): RetrieveJsonViewModel
     {
         return $this->initializeViewModel(
             new UserRetrieveViewModel(
@@ -286,8 +289,8 @@ final class ErrorListDomainPresenter implements ErrorListPresenter, PresenterSta
 
     public function present(ErrorListResponse $response): void
     {
-        $this->presented = true;
         $this->errors = $response->errors;
+        $this->presented = true;
     }
 
     public function hasBeenPresented(): bool
@@ -306,15 +309,15 @@ Cette implémentation permet de manipuler une liste d’erreurs métier dans le 
 
 ---
 
-## 🧱 Présentateurs abstraits disponibles
+## 🧱 Presenters abstraits disponibles
 
 Le système propose trois bases différentes de presenters, selon la nature de la réponse à présenter :
 
-| Classe                             | Utilisation principale                         | Particularités                            |
-|-----------------------------------|-------------------------------------------------|-------------------------------------------|
-| `ResourceViewModelPresenter`      | Pour une réponse contenant une ressource unique| Gère aussi les erreurs                    |
-| `CollectionResourceViewModelPresenter` | Pour des collections avec pagination | Gère aussi les erreurs et la pagination   |
-| `DirectViewModelPresenter`        | Pour des réponses directes sans extraction     | Aucune gestion d’erreurs, très minimaliste|
+| Classe                                 | Utilisation principale                          | Particularités                            |
+|----------------------------------------|-------------------------------------------------|-------------------------------------------|
+| `ResourceViewModelPresenter`           | Pour une réponse contenant une ressource unique | Gère aussi les erreurs                    |
+| `CollectionResourceViewModelPresenter` | Pour des collections avec ou sans pagination    | Gère aussi les erreurs et la pagination   |
+| `DirectViewModelPresenter`             | Pour des réponses directes sans extraction      | Aucune gestion d’erreurs, très minimaliste|
 
 ---
 
@@ -327,7 +330,7 @@ Le système propose trois bases différentes de presenters, selon la nature de l
 
 ### 📦 `CollectionResourceViewModelPresenter`
 
-- Idéal pour des listes de ressources (ex: `Job[]`, `Survey[]`) avec ou sans pagination.
+- Idéal pour des listes de ressources (ex: `JobList`, `OrganizationList`) avec ou sans pagination.
 - Extrait la liste et éventuellement les métadonnées de pagination.
 
 ---
@@ -335,7 +338,7 @@ Le système propose trois bases différentes de presenters, selon la nature de l
 ### ⚡ `DirectViewModelPresenter`
 
 - À utiliser pour les cas très simples ou statiques (ex: réponse booléenne, message technique).
-- Pas d’extraction métier : la réponse EST le ViewModel.
+- Pas d’extraction métier : le presenter mappe directement la Response vers un ViewModel.
 - Ne gère pas les erreurs (`ErrorList`, `NotFound`, `AccessDenied`) — tout doit être déjà filtré en amont.
 
 ---
@@ -347,52 +350,6 @@ Ces trois abstractions permettent de couvrir **tous les formats de réponse poss
 # Résultats métier (`Result`) — Couche Domaine
 
 La couche **Domaine** expose des objets de type `Result` permettant de modéliser proprement les résultats d’un UseCase ou d’une validation métier, sans recourir aux exceptions pour le contrôle de flux.
-
-## 🧱 Résultats fournis
-
-| Classe             | Rôle                                      |
-|--------------------|-------------------------------------------|
-| `CreationResult`   | Retour d’un processus de création         |
-| `ValidationResult` | Retour d’une étape de validation métier   |
-
----
-
-## ✅ `CreationResult<T>`
-
-Permet de retourner une ressource créée (ex: un `User`, un `Job`, etc.) ou un ensemble d’erreurs métier.
-
-### Méthodes :
-
-- `CreationResult::success($resource)` : succès avec la ressource créée
-- `CreationResult::failure(ErrorList $errors)` : échec métier
-
-```php
-if ($result->hasSucceeded()) {
-    $user = $result->resource();
-}
-```
-
-En cas d’échec, `resource()` déclenche une exception.
-
----
-
-## ✅ `ValidationResult`
-
-Représente le résultat d’une validation métier (ex : contraintes métier, unicité, préconditions...).
-
-- `ValidationResult::valid()`
-- `ValidationResult::invalid(ErrorList $errors)`
-
----
-
-## 🔁 Interfaces partagées
-
-| Interface        | Description                                |
-|------------------|--------------------------------------------|
-| `FailureResult`  | Fournit `hasFailed()` et `errors()`        |
-| `ResultStatus`   | Fournit `hasSucceeded()`                   |
-
----
 
 ## 🎯 Présentation des erreurs avec `PresentErrorsTrait`
 
@@ -413,196 +370,3 @@ Cela améliore la lisibilité des UseCases et rend la gestion des erreurs métie
 Ces objets `Result` permettent une **programmation fonctionnelle et fluide**, tout en restant typés, testables et explicites.
 
 ---
-
-## 🏭 `CreationResult` : pour les Factories métier
-
-La classe `CreationResult<T>` est spécifiquement conçue pour les **Factories** qui construisent des entités métier.
-
-### Exemple concret : Factory de `UserRegister`
-
-```php
-final class UserRegisterFactory implements UserRegisterCreation
-{
-    public function create(UserRegisterRequest $request): CreationResult
-    {
-        $userRegister = new UserRegister(
-            email: EmailAddress::from($request->email),
-        );
-
-        return CreationResult::success($userRegister);
-    }
-}
-```
-
-Cela permet de **centraliser la logique de construction** et de **renvoyer un résultat typé**, tout en encapsulant les erreurs métier dans un `ErrorList`.
-
----
-
-### Intégration dans un UseCase
-
-```php
-$creationResult = $this->creation->create($request);
-
-if ($creationResult->hasFailed()) {
-    $this->presentErrors($this->errorsPresenter, $creationResult);
-    return;
-}
-
-$user = $creationResult->resource();
-$this->command->register($user);
-```
-
-✅ Grâce à `CreationResult`, la Factory reste **autonome, testable et explicite**, sans propager d’exceptions dans le flow nominal.
-
----
-
-## ✅ `ValidationResult` : pour les règles métier et validations d’entrée
-
-`ValidationResult` est utilisé pour encapsuler le résultat d’une **validation métier** ou d’une **vérification d’entrée** sans lancer d’exception.
-
----
-
-### 🧪 Validation d’un `Request`
-
-```php
-$validationResult = $this->requestValidation->validate($request);
-
-if ($validationResult->hasFailed()) {
-    $this->presentErrors($this->errorsPresenter, $validationResult);
-    return;
-}
-
-$this->userCase->execute($request);
-```
-
-Cela permet de chaîner les validations sans casser le flot nominal.
-
----
-
-### 📌 Exemple : `UserRegisterRequestValidator`
-
-```php
-final class UserRegisterRequestValidator implements UserRegisterRequestValidation
-{
-    public function validate(UserRegisterRequest $request): ValidationResult
-    {
-        return AssertValidation::validateLazy(fn(LazyAssertion $lazy) => $this->assert($lazy, $request));
-    }
-
-    private function assert(LazyAssertion $lazy, UserRegisterRequest $request): void
-    {
-        AssertValidation::validateLazyField($lazy, $request->email, 'email', [EmailAddress::class, 'validate']);
-        AssertValidation::validateLazyField($lazy, $request->language, 'language', [Language::class, 'validate']);
-    }
-}
-```
-
----
-
-### 📌 Exemple : `UserRegisterPolicyValidator`
-
-```php
-final class UserRegisterPolicyValidator implements UserRegisterPolicyValidation
-{
-    public function __construct(
-        private readonly UserUniquenessVerification $uniquenessVerification,
-    ) {}
-
-    public function validate(UserRegisterRequest $request): ValidationResult
-    {
-        return AssertValidation::validateSimple(fn () => $this->verify($request));
-    }
-
-    private function verify(UserRegisterRequest $request): void
-    {
-        $filter = UserFilter::byEmail($request->getEmail())
-    
-        AssertValidation::validateSimpleField(
-            $request->identifier,
-            'email',
-            fn ($filter) => $this->uniquenessVerification->unique($filter),
-            'Email already used'
-         );
-    }
-}
-```
-
----
-
-✅ `ValidationResult` permet de **composer plusieurs validations successives**, tout en conservant une logique pure, testable et sans dépendance à une couche technique (ex: exceptions, HTTP...).
-
----
-
-## 📏 Validation métier avec `AssertValidation`
-
-La classe utilitaire `AssertValidation` permet de **standardiser la validation métier** en encapsulant des appels à la librairie [`beberlei/assert`](https://github.com/beberlei/assert) tout en produisant des objets `ValidationResult`.
-
-Elle est utilisée pour **éviter les exceptions non maîtrisées**, et garantir un retour typé en cas d’erreurs de validation.
-
----
-
-### ✅ Méthodes disponibles
-
-| Méthode                         | Usage                                                  |
-|----------------------------------|---------------------------------------------------------|
-| `validateSimple(callable)`      | Validation directe, sans injection de `LazyAssertion`  |
-| `validateLazy(callable)`        | Validation paresseuse avec `LazyAssertion`             |
-| `validateSimpleField(...)`      | Valide un champ unique via une fonction de validation  |
-| `validateLazyField(...)`        | Pareil, mais injecté dans un `LazyAssertion` groupé    |
-
----
-
-### 📌 Exemple `validateSimple`
-
-```php
-return AssertValidation::validateSimple(function () use ($value) {
-    Assertion::minLength($value, 3, 'Value must be at least 3 characters');
-});
-```
-
----
-
-### 📌 Exemple `validateLazy`
-
-```php
-return AssertValidation::validateLazy(function (LazyAssertion $lazy) use ($request) {
-    $lazy
-        ->that($request->email, 'email')->email()
-        ->that($request->language, 'language')->notEmpty();
-});
-```
-
----
-
-### 📌 Exemple `validateLazyField`
-
-```php
-return AssertValidation::validateLazy(function (LazyAssertion $lazy) use ($request) {
-    AssertValidation::validateLazyField($lazy, $request->email, 'email', [EmailAddress::class, 'validate']);
-});
-```
-
----
-
-### 📌 Exemple `validateSimpleField`
-
-```php
-return AssertValidation::validateSimple(function () use ($value) {
-    AssertValidation::validateSimpleField($value, 'language', [Language::class, 'validate']);
-});
-```
-
----
-
-### 🔁 Résultat attendu
-
-Toutes ces méthodes retournent un `ValidationResult` qui peut être utilisé de manière fluide :
-
-```php
-$validationResult = $this->validator->validate($request);
-
-if ($validationResult->hasFailed()) {
-    $this->presentErrors($presenter, $validationResult);
-    return;
-}
-```
