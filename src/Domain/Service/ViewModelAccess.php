@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ChooseMyCompany\Shared\Domain\Service;
 
 /**
- * @template TViewModel
+ * @template-covariant TViewModel of mixed
  */
 interface ViewModelAccess
 {

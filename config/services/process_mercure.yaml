@@ -1,0 +1,144 @@
+services:
+    _defaults:
+        autowire: false
+        autoconfigure: false
+
+    _instanceof:
+        ChooseMyCompany\Shared\Domain\Service\ResetState:
+            tags: [ { name: 'kernel.reset', method: reset } ]
+
+    # ----------------------------------------------------
+    # Presenters
+    # ----------------------------------------------------
+    process_presenter_domain:
+        class: ChooseMyCompany\Shared\Presentation\Domain\ProcessDomainPresenter
+
+    process_presenter_json:
+        class: ChooseMyCompany\Shared\Presentation\Json\ProcessJsonPresenter
+        arguments:
+            $errorsOutcome: '@error_list_presenter_json'
+            $processOutcome: '@process_presenter_domain'
+
+    process_presenter_broadcast:
+        class: ChooseMyCompany\Shared\Presentation\Broadcast\ProcessBroadcastPresenter
+        arguments:
+            $processProvider: '@process_presenter_domain'
+
+    process_error_list_presenter_broadcast:
+        class: ChooseMyCompany\Shared\Presentation\Broadcast\ErrorListProcessBroadcastPresenter
+        arguments:
+            $errorsProvider: '@error_list_presenter_domain'
+            $processProvider: '@process_presenter_domain'
+
+    # ----------------------------------------------------
+    # Message bus (middleware)
+    # ----------------------------------------------------
+    process_stamp_add_middleware_message_bus:
+        class: ChooseMyCompany\Shared\Infrastructure\MessageBus\Messenger\Middleware\AddProcessStampMiddleware
+        arguments:
+            $processOutcome: '@process_presenter_domain'
+
+    process_loaded_event_middleware_message_bus:
+        class: ChooseMyCompany\Shared\Infrastructure\MessageBus\Messenger\Middleware\ProcessLoadedEventMiddleware
+        arguments:
+            $eventDispatching: '@event_bus_dispatcher'
+
+    # ----------------------------------------------------
+    # Event bus (event listener)
+    # ----------------------------------------------------
+    process_present_on_loaded_event_listener:
+        class: ChooseMyCompany\Shared\Domain\EventListener\PresentProcessOnProcessLoadedEventListener
+        arguments:
+            $processPresenter: '@process_presenter_domain'
+        tags: [ kernel.event_listener ]
+
+    # ----------------------------------------------------
+    # Broadcaster
+    # ----------------------------------------------------
+    update_factory_mercure:
+        class: ChooseMyCompany\Shared\Infrastructure\Broadcast\Mercure\Factory\MercureUpdateFactory
+        arguments:
+            $serializer: '@serializer'
+
+    broadcaster_mercure:
+        class: ChooseMyCompany\Shared\Infrastructure\Broadcast\Mercure\Publisher\MercureBroadcaster
+        arguments:
+            $updateCreation: '@update_factory_mercure'
+            $hub: '@mercure.hub.default.traceable'
+
+    # ----------------------------------------------------
+    # Attachers
+    # ----------------------------------------------------
+    process_broadcasting_attacher_mercure:
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessBroadcastingAttacher
+        abstract: true
+        arguments:
+            $processProvider: '@process_presenter_domain'
+            $viewModelAccess: '@process_presenter_broadcast'
+            $broadcasting: '@broadcaster_mercure'
+
+    process_state_change_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessStateChangeBroadcastingAttacher
+
+    process_started_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessStartedBroadcastingAttacher
+
+    process_in_progress_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessInProgressBroadcastingAttacher
+
+    process_completed_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessCompletedBroadcastingAttacher
+
+    process_failed_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessFailedBroadcastingAttacher
+
+    process_failed_error_list_broadcasting_attacher_mercure:
+        parent: process_broadcasting_attacher_mercure
+        class: ChooseMyCompany\Shared\Domain\Attacher\Process\ProcessFailedBroadcastingAttacher
+        arguments:
+            $viewModelAccess: '@process_error_list_presenter_broadcast'
+
+    # ----------------------------------------------------
+    # Initiation
+    # ----------------------------------------------------
+    process_initiation:
+        class: ChooseMyCompany\Shared\Domain\Initiation\ProcessInitiation
+        arguments:
+            $identifierGeneration: '@generation_identifier'
+            $processPresenter: '@process_presenter_domain'
+
+    process_attacher_initiation_mercure:
+        class: ChooseMyCompany\Shared\Domain\Initiation\AttacherInitiation
+        arguments:
+            $attacher: '@process_state_change_broadcasting_attacher_mercure'
+
+    process_start_initiation:
+        class: ChooseMyCompany\Shared\Domain\Initiation\ProcessStartInitiation
+        arguments:
+            $processProvider: '@process_presenter_domain'
+
+    process_multiple_initiation:
+        class: ChooseMyCompany\Shared\Domain\Initiation\MultipleInitiation
+        arguments:
+            $initiations:
+                - '@process_attacher_initiation_mercure'
+                - '@process_start_initiation'
+
+    # ----------------------------------------------------
+    # Completion
+    # ----------------------------------------------------
+    process_progress_completion:
+        class: ChooseMyCompany\Shared\Domain\Completion\ProcessProgressCompletion
+        arguments:
+            $processProvider: '@process_presenter_domain'
+
+    process_finalize_completion:
+        class: ChooseMyCompany\Shared\Domain\Completion\ProcessFinalizeCompletion
+        arguments:
+            $errorOutcome: '@error_list_presenter_domain'
+            $processProvider: '@process_presenter_domain'

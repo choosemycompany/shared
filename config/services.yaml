@@ -1,0 +1,45 @@
+services:
+    _defaults:
+        autowire: false
+        autoconfigure: false
+
+    _instanceof:
+        ChooseMyCompany\Shared\Domain\Service\ResetState:
+            tags: [ { name: 'kernel.reset', method: reset } ]
+
+    # ----------------------------------------------------
+    # Identifiers
+    # ----------------------------------------------------
+    generation_identifier:
+        class: ChooseMyCompany\Shared\Infrastructure\Identifier\Symfony\SymfonyIdentifierGeneration
+        arguments:
+            $uuidFactory: '@uuid.factory'
+
+    # ----------------------------------------------------
+    # Event bus (dispatcher)
+    # ----------------------------------------------------
+    event_bus_dispatcher:
+        class: ChooseMyCompany\Shared\Infrastructure\EventBus\Symfony\Dispatcher\SymfonyEventDispatcher
+        arguments:
+            $eventDispatcher: '@event_dispatcher'
+
+    # ----------------------------------------------------
+    # Message bus (dispatcher)
+    # ----------------------------------------------------
+    envelope_factory:
+        class: ChooseMyCompany\Shared\Infrastructure\MessageBus\Messenger\Factory\EnvelopeFactory
+
+    message_bus_dispatcher:
+        class: ChooseMyCompany\Shared\Infrastructure\MessageBus\Messenger\Dispatcher\MessengerMessageDispatcher
+        arguments:
+            $bus: '@command.bus'
+            $envelopeFactory: '@envelope_factory'
+
+    # ----------------------------------------------------
+    # Presenters
+    # ----------------------------------------------------
+    error_list_presenter_domain:
+        class: ChooseMyCompany\Shared\Presentation\Domain\ErrorListDomainPresenter
+
+    error_list_presenter_json:
+        alias: ChooseMyCompany\Shared\Presentation\Presenter\Json\ErrorListJsonPresenter
