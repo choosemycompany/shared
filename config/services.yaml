@@ -42,4 +42,4 @@ services:
         class: ChooseMyCompany\Shared\Presentation\Domain\ErrorListDomainPresenter
 
     error_list_presenter_json:
-        alias: ChooseMyCompany\Shared\Presentation\Presenter\Json\ErrorListJsonPresenter
+        alias: ChooseMyCompany\Shared\Presentation\Json\ErrorListJsonViewModelPresenter
