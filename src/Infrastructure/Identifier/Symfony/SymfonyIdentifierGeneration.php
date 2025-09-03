@@ -17,6 +17,6 @@ final class SymfonyIdentifierGeneration implements IdentifierGeneration
 
     public function generate(): Uuid
     {
-        return new Uuid($this->uuidFactory->generate());
+        return new Uuid(\strval($this->uuidFactory->create()));
     }
 }
