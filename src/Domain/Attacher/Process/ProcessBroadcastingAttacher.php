@@ -27,16 +27,4 @@ abstract class ProcessBroadcastingAttacher implements Attacher
     {
         return $this->processProvider->provide();
     }
-
-    public function attach(): void
-    {
-        $broadcasting = $this->broadcasting;
-        $viewModelAccess = $this->viewModelAccess;
-
-        $this->process()->onStateChanged(
-            static function () use ($broadcasting, $viewModelAccess): void {
-                $broadcasting->broadcast($viewModelAccess->viewModel());
-            }
-        );
-    }
 }
