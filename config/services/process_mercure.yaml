@@ -64,7 +64,7 @@ services:
         class: ChooseMyCompany\Shared\Infrastructure\Broadcast\Mercure\Publisher\MercureBroadcaster
         arguments:
             $updateCreation: '@update_factory_mercure'
-            $hub: '@mercure.hub.default.traceable'
+            $hub: '@mercure.hub.default'
 
     # ----------------------------------------------------
     # Attachers
