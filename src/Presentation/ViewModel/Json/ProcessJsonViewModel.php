@@ -7,7 +7,7 @@ namespace ChooseMyCompany\Shared\Presentation\ViewModel\Json;
 final class ProcessJsonViewModel implements JsonViewModel
 {
     public function __construct(
-        public readonly string $identifier,
+        public readonly string $id,
         public readonly string $status,
     ) {
     }

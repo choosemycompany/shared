@@ -42,7 +42,7 @@ final class ProcessJsonPresenter implements ViewModelAccess
         $process = $this->processOutcome->provide();
 
         return new ProcessJsonViewModel(
-            identifier: $process->identifier->toString(),
+            id: $process->identifier->toString(),
             status: $process->state()->toString(),
         );
     }
