@@ -73,4 +73,9 @@ final class Process
             $callback($this);
         }
     }
+
+    public function resetStateChangedCallbacks(): void
+    {
+        $this->stateChangedCallbacks = [];
+    }
 }
