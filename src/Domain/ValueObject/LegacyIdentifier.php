@@ -73,8 +73,8 @@ abstract class LegacyIdentifier implements \Stringable
     private static function assertValid(mixed $value): void
     {
         Assert::that($value)
-            ->integerish($value, 'identifier must be an integer')
-            ->greaterThan(0, 'identifier must be a positive integer');
+            ->integerish('Legacy identifier "%s" must be an integer.')
+            ->greaterThan(0, 'Legacy identifier "%s" must be a positive integer (greater than "%s").');
     }
 
     public function toInteger(): int

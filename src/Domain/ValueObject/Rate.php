@@ -26,10 +26,10 @@ final class Rate
         }
 
         Assert::lazy()
-            ->that($numerator)
+            ->that($numerator, 'numerator')
             ->greaterOrEqualThan(0)
-            ->that($denominator)
-            ->greaterThan(0, 'Division by zero is not allowed.')
+            ->that($denominator, 'denominator')
+            ->greaterThan(0, 'Denominator "%s" must be greater than "%s" (division by zero is not allowed).')
             ->verifyNow()
         ;
         Assert::that($denominator)->greaterOrEqualThan($numerator);

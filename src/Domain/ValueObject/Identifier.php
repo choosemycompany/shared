@@ -74,8 +74,8 @@ abstract class Identifier implements \Stringable
     private static function assertValid(mixed $value): void
     {
         Assert::that($value)
-            ->string('identifier must be a string')
-            ->uuid('identifier must be a valid UUID');
+            ->string('Identifier "%s" must be a string, type %s given.')
+            ->uuid('Identifier "%s" must be a valid UUID.');
     }
 
     public function toUuid(): Uuid
