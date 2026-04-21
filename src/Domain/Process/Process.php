@@ -74,8 +74,13 @@ final class Process
         }
     }
 
-    public function resetStateChangedCallbacks(): void
+    public function withoutCallbacks(): Process
     {
-        $this->stateChangedCallbacks = [];
+        $self = new Process(
+            ProcessIdentifier::from($this->identifier->toString())
+        );
+        $self->state = ProcessState::from($this->state->value);
+
+        return $self;
     }
 }

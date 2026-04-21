@@ -27,8 +27,9 @@ final class AddProcessStampMiddleware implements MiddlewareInterface
 
         if ($this->processOutcome->hasBeenPresented()) {
             $process = $this->processOutcome->provide();
-            $process->resetStateChangedCallbacks();
-            $envelope = $envelope->with(new ProcessStamp($process));
+            $processWithoutCallbacks = $process->withoutCallbacks();
+
+            $envelope = $envelope->with(new ProcessStamp($processWithoutCallbacks));
         }
 
         return $stack->next()->handle($envelope, $stack);
