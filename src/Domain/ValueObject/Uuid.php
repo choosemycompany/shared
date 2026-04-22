@@ -27,8 +27,8 @@ final class Uuid implements \Stringable
     private static function assertValid(mixed $value): void
     {
         Assert::that($value)
-            ->string('value must be a string')
-            ->uuid('value must be a valid UUID');
+            ->string('Value "%s" must be a string, type %s given.')
+            ->uuid('Value "%s" must be a valid UUID.');
     }
 
     public static function validate(mixed $value): ?string
