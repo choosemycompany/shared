@@ -11,4 +11,9 @@ final class Error
         public readonly ?string $field = null,
     ) {
     }
+
+    public function toString(): string
+    {
+        return null === $this->field ? $this->message : \sprintf('%s: %s', $this->field, $this->message);
+    }
 }

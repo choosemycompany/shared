@@ -24,4 +24,12 @@ final class ErrorList
     {
         return $this->errors;
     }
+
+    public function toString(): string
+    {
+        return \implode(' | ', \array_map(
+            static fn (Error $error): string => $error->toString(),
+            $this->errors,
+        ));
+    }
 }
