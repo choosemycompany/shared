@@ -14,7 +14,7 @@ final class SymfonyEventDispatcher implements EventDispatching
     ) {
     }
 
-    public function dispatch(object $event, string $eventName = null): void
+    public function dispatch(object $event, ?string $eventName = null): void
     {
         $this->eventDispatcher->dispatch($event, $eventName);
     }

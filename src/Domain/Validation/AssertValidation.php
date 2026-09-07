@@ -62,7 +62,7 @@ final class AssertValidation
         mixed $value,
         string $field,
         callable $validator,
-        string $message = null
+        ?string $message = null
     ): void {
         $error = $validator($value);
         Assertion::satisfy(

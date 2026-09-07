@@ -12,7 +12,7 @@ class DomainException extends \Exception
 
     protected function __construct(
         string $message = '',
-        ErrorList $errors = null,
+        ?ErrorList $errors = null,
         int $code = 0,
         ?\Throwable $previous = null
     ) {
