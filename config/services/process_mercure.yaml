@@ -140,5 +140,6 @@ services:
     process_finalize_completion:
         class: ChooseMyCompany\Shared\Domain\Completion\ProcessFinalizeCompletion
         arguments:
-            $errorOutcome: '@error_list_presenter_domain'
             $processProvider: '@process_presenter_domain'
+            $failureOutcomes:
+                - '@error_list_presenter_domain'

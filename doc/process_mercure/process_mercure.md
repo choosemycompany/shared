@@ -52,7 +52,7 @@ Les services suivants orchestrent cette phase d’initialisation :
 | Service ID                      | Classe                         | Rôle                                                      |
 |---------------------------------|--------------------------------|-----------------------------------------------------------|
 | `process_progress_completion`   | `...ProcessProgressCompletion` | Mise à jour des informations de progression               |
-| `process_finalize_completion`   | `...ProcessFinalizeCompletion` | Finalisation du process et envoi des erreurs si présentes |
+| `process_finalize_completion`   | `...ProcessFinalizeCompletion` | Finalisation du process : `failed` si l'une des sorties d'échec injectées (`$failureOutcomes`) a été présentée, `completed` sinon |
 
 ## 2.5. Event Bus (listener)
 
