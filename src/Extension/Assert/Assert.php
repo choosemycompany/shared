@@ -12,7 +12,7 @@ class Assert extends BaseAssert
 
     protected static $assertionClass = Assertion::class;
 
-    public static function that($value, $defaultMessage = null, string $defaultPropertyPath = null): AssertionChain
+    public static function that($value, $defaultMessage = null, ?string $defaultPropertyPath = null): AssertionChain
     {
         $assertionChain = new AssertionChain($value, $defaultMessage, $defaultPropertyPath);
 

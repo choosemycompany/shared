@@ -26,7 +26,7 @@ class Assertion extends BaseAssertion
      *
      * @throws AssertionFailedException if the value is not "stringable" or is a boolean
      */
-    public static function stringable($value, string $message = null, string $propertyPath = null): bool
+    public static function stringable($value, ?string $message = null, ?string $propertyPath = null): bool
     {
         if (is_bool($value) || (!is_scalar($value) && !(is_object($value) && method_exists($value, '__toString')))) {
             $message = \sprintf(
@@ -69,8 +69,8 @@ class Assertion extends BaseAssertion
     public static function satisfyIdentifier(
         mixed $value,
         callable $identifierFactory,
-        callable $existenceCheck = null,
-        string $propertyPath = null,
+        ?callable $existenceCheck = null,
+        ?string $propertyPath = null,
         bool $allowEmpty = false
     ): bool {
         if ($allowEmpty && '' === $value) {
