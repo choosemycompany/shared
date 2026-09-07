@@ -64,7 +64,7 @@ Tous héritent d’un attacher générique `ProcessBroadcastingCallbackAttacher`
 | Service ID                    | Classe                         | Rôle                                |
 | ----------------------------- | ------------------------------ | ----------------------------------- |
 | `process_progress_completion` | `...ProcessProgressCompletion` | Mise à jour de la progression       |
-| `process_finalize_completion` | `...ProcessFinalizeCompletion` | Finalisation et gestion des erreurs |
+| `process_finalize_completion` | `...ProcessFinalizeCompletion` | Finalisation : `failed` si une sortie d'échec (`$failureOutcomes`) a été présentée |
 
 ---
 
