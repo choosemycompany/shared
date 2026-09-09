@@ -309,6 +309,25 @@ Cette implémentation permet de manipuler une liste d’erreurs métier dans le 
 
 ---
 
+## 🧩 `MultiplePresenterState`
+
+Compose plusieurs `PresenterState` en un seul : `hasBeenPresented()` vaut `true` dès qu'un des
+presenters composés a présenté.
+
+Cas d'usage : un process peut échouer pour plusieurs raisons présentées par des presenters
+différents (erreurs métier, accès refusé...). `ProcessFinalizeCompletion` continue de recevoir un
+seul `$errorOutcome` ; c'est le wiring qui décide de ce qu'il agrège.
+
+```yaml
+published_verbatim_multiple_remove_failure_outcome:
+    class: ChooseMyCompany\Shared\Presentation\Domain\MultiplePresenterState
+    arguments:
+        - '@error_list_presenter_domain'
+        - '@ChooseMyCompany\Shared\Presentation\Json\AccessDeniedJsonViewModelPresenter'
+```
+
+---
+
 ## 🧱 Presenters abstraits disponibles
 
 Le système propose trois bases différentes de presenters, selon la nature de la réponse à présenter :
