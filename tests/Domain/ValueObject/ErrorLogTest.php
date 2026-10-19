@@ -10,21 +10,49 @@ use PHPUnit\Framework\TestCase;
 
 final class ErrorLogTest extends TestCase
 {
+    private const EXCEPTION_MESSAGE = 'Connection refused';
+
     public function testThatItRendersTheGivenMessage(): void
     {
         // Given
-        $givenValue = 'Submission dropped for form 42: email: is required';
+        $givenMessage = 'Submission dropped for form 42: email: is required';
 
         // When
-        $actualString = ErrorLog::from($givenValue)->toString();
+        $actualString = ErrorLog::from($givenMessage)->toString();
 
         // Then
         $expectedString = 'Submission dropped for form 42: email: is required';
         self::assertSame($expectedString, $actualString);
     }
 
-    #[DataProvider('blankValueProvider')]
-    public function testThatItRefusesABlankMessage(string $givenValue): void
+    public function testThatItKeepsTheGivenException(): void
+    {
+        // Given
+        $givenMessage = 'Invitation send to main failed for form 42';
+        $givenException = new \RuntimeException(self::EXCEPTION_MESSAGE);
+
+        // When
+        $actualException = ErrorLog::from($givenMessage, $givenException)->exception();
+
+        // Then
+        self::assertInstanceOf(\RuntimeException::class, $actualException);
+        self::assertSame(self::EXCEPTION_MESSAGE, $actualException->getMessage());
+    }
+
+    public function testThatItHasNoExceptionByDefault(): void
+    {
+        // Given
+        $givenMessage = 'Question IDs 7 match no hf question';
+
+        // When
+        $actualException = ErrorLog::from($givenMessage)->exception();
+
+        // Then
+        self::assertNull($actualException);
+    }
+
+    #[DataProvider('blankMessageProvider')]
+    public function testThatItRefusesABlankMessage(string $givenMessage): void
     {
         // Given
 
@@ -33,10 +61,10 @@ final class ErrorLogTest extends TestCase
         $this->expectExceptionMessage('Error log must not be blank.');
 
         // When
-        ErrorLog::from($givenValue);
+        ErrorLog::from($givenMessage);
     }
 
-    public static function blankValueProvider(): \Generator
+    public static function blankMessageProvider(): \Generator
     {
         yield 'empty string' => [''];
         yield 'spaces only' => ['   '];

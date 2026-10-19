@@ -37,3 +37,27 @@ $this->errorLogger->log(ErrorLog::from(
     \sprintf('Submission dropped for form %s: %s', $formIdentifier->toString(), $errors->toString()),
 ));
 ```
+
+Dans un `catch`, passer aussi l'exception : le message porte le contexte métier, l'exception porte
+la classe, la trace et les `getPrevious()`. L'exception reste optionnelle : une erreur métier n'en a pas.
+
+```php
+} catch (\Throwable $exception) {
+    $this->errorLogger->log(ErrorLog::from(
+        \sprintf('Invitation send to main failed for form %s', $formIdentifier->toString()),
+        $exception,
+    ));
+}
+```
+
+Côté `Infrastructure`, l'implémentation transmet l'exception sous la clé `exception` du contexte
+PSR-3, que Monolog sait formater :
+
+```php
+public function log(ErrorLog $errorLog): void
+{
+    $exception = $errorLog->exception();
+
+    $this->logger->error($errorLog->toString(), null === $exception ? [] : ['exception' => $exception]);
+}
+```

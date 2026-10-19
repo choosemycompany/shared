@@ -9,22 +9,28 @@ use Assert\Assert;
 final class ErrorLog
 {
     private function __construct(
-        private readonly string $value,
+        private readonly string $message,
+        private readonly ?\Throwable $exception,
     ) {
     }
 
     /**
      * @throws \InvalidArgumentException
      */
-    public static function from(string $value): self
+    public static function from(string $message, ?\Throwable $exception = null): self
     {
-        Assert::that($value)->notBlank('Error log must not be blank.');
+        Assert::that($message)->notBlank('Error log must not be blank.');
 
-        return new self($value);
+        return new self($message, $exception);
     }
 
     public function toString(): string
     {
-        return $this->value;
+        return $this->message;
+    }
+
+    public function exception(): ?\Throwable
+    {
+        return $this->exception;
     }
 }
