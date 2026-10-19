@@ -2,10 +2,10 @@
 
 ## 🧱 Ports fournis
 
-| Port                   | Rôle                                                                                         |
-|------------------------|----------------------------------------------------------------------------------------------|
-| `ErrorLogging`         | Journaliser un `ErrorLog` sans exposer le logger                                             |
-| `TransactionalSession` | `beginTransaction()` / `commit()` / `rollBack()` pilotés par le décorateur `WithTransaction` |
+| Port                   | Rôle                                                                                                                    |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| `ErrorLogging`         | Journaliser un `ErrorLog` sans exposer le logger                                                                        |
+| `TransactionalSession` | `beginTransaction()` / `commit()` / `rollBack()` pilotés par les décorateurs `*UseCaseWithTransaction` des applications |
 
 ---
 
