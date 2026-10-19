@@ -4,7 +4,7 @@
 
 | Port                   | Rôle                                                                                         |
 |------------------------|----------------------------------------------------------------------------------------------|
-| `ErrorLogging`         | Journaliser un `ErrorLogMessage` sans exposer le logger                                      |
+| `ErrorLogging`         | Journaliser un `ErrorLog` sans exposer le logger                                             |
 | `TransactionalSession` | `beginTransaction()` / `commit()` / `rollBack()` pilotés par le décorateur `WithTransaction` |
 
 ---
@@ -25,15 +25,15 @@ le soit.
 
 ---
 
-## 📝 `ErrorLogMessage`
+## 📝 `ErrorLog`
 
-`ErrorLogging::log()` reçoit un `ErrorLogMessage`, pas une chaîne. Les ports de ce dépôt prennent
+`ErrorLogging::log()` reçoit un `ErrorLog`, pas une chaîne. Les ports de ce dépôt prennent
 des objets du domaine (`Message`, `ErrorListResponse`, `BroadcastViewModel`...) : le port de
 journalisation suit la même règle. Le value object garantit aussi qu'un message vide ne part
 jamais dans les journaux.
 
 ```php
-$this->errorLogger->log(ErrorLogMessage::from(
+$this->errorLogger->log(ErrorLog::from(
     \sprintf('Submission dropped for form %s: %s', $formIdentifier->toString(), $errors->toString()),
 ));
 ```

@@ -6,7 +6,7 @@ namespace ChooseMyCompany\Shared\Domain\ValueObject;
 
 use Assert\Assert;
 
-final class ErrorLogMessage
+final class ErrorLog
 {
     private function __construct(
         private readonly string $value,
@@ -18,7 +18,7 @@ final class ErrorLogMessage
      */
     public static function from(string $value): self
     {
-        Assert::that($value)->notBlank('Error log message must not be blank.');
+        Assert::that($value)->notBlank('Error log must not be blank.');
 
         return new self($value);
     }
