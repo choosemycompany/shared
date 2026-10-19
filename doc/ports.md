@@ -4,7 +4,9 @@
 
 | Port                   | Rôle                                                                                                                    |
 |------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| `ErrorLogging`         | Journaliser un `ErrorLog` sans exposer le logger                                                                        |
+| `ErrorLogging`         | Journaliser un `ErrorLog` (message + exception optionnelle) sans exposer le logger                                      |
+| `WarningLogging`       | Journaliser un `WarningLog` (message + exception optionnelle) sans exposer le logger                                    |
+| `InfoLogging`          | Journaliser un `InfoLog` (message seul) sans exposer le logger                                                          |
 | `TransactionalSession` | `beginTransaction()` / `commit()` / `rollBack()` pilotés par les décorateurs `*UseCaseWithTransaction` des applications |
 
 ---
@@ -15,9 +17,10 @@ Le `Domain` d'une application ne dépend que d'une interface ; l'implémentation
 `Infrastructure` (Monolog, Doctrine...). Ces ports étaient dupliqués à l'identique entre `happy`
 et `main`. Ils sont fournis ici une seule fois.
 
-La règle du dépôt s'applique : un port n'entre dans `shared` que s'il est utilisé par au moins
-deux applications backend. `WarningLogging` (happy seul) et `InfoLogging` (main seul) restent
-donc dans leur application.
+Les trois ports de journalisation forment une famille et vivent ensemble dans `shared`, même si
+`WarningLogging` ne sert aujourd'hui qu'à `happy` et `InfoLogging` qu'à `main`. C'est une exception
+assumée à la règle des deux applications (`doc/state.md`) : elle garde un seul contrat pour tous
+les niveaux de journalisation.
 
 Les ports HTTP (`HttpClient`, `HttpPromise`, `HttpResponse`) sont utilisés par `happy` et `main`,
 mais leur contrat n'est pas encore stabilisé. Ils restent dans les applications jusqu'à ce qu'il
@@ -25,9 +28,9 @@ le soit.
 
 ---
 
-## 📝 `ErrorLog`
+## 📝 `ErrorLog`, `WarningLog`, `InfoLog`
 
-`ErrorLogging::log()` reçoit un `ErrorLog`, pas une chaîne. Les ports de ce dépôt prennent
+Chaque port de journalisation reçoit son value object, pas une chaîne. Les ports de ce dépôt prennent
 des objets du domaine (`Message`, `ErrorListResponse`, `BroadcastViewModel`...) : le port de
 journalisation suit la même règle. Le value object garantit aussi qu'un message vide ne part
 jamais dans les journaux.
@@ -40,6 +43,7 @@ $this->errorLogger->log(ErrorLog::from(
 
 Dans un `catch`, passer aussi l'exception : le message porte le contexte métier, l'exception porte
 la classe, la trace et les `getPrevious()`. L'exception reste optionnelle : une erreur métier n'en a pas.
+`WarningLog` suit la même forme. `InfoLog` ne porte qu'un message : une info n'a pas d'exception.
 
 ```php
 } catch (\Throwable $exception) {
